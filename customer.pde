@@ -16,17 +16,19 @@ class Customer {
 
   ArrayList<Double> probnum = new ArrayList<Double>();
   ArrayList<Double> utilitynum = new ArrayList<Double>();
-  ArrayList<Integer> select_fre = new ArrayList<Integer>();//何回選択したか
-  ArrayList<Integer> select_pri = new ArrayList<Integer>();
+  int[] select_fresh = new int[14-sales_deadline+1];//何回選択したか
+  int[] select_price = new int[14-sales_deadline+1];
 
 
   Customer() {
   }
 
   void customer_first() {
-    for (int i=0; i<14; i++) {
-      select_fre.add(0);
-      select_pri.add(0);
+    for (int i=0; i<select_fresh.length; i++) {
+      select_fresh[i] = 0;
+    }
+    for (int i=0; i<select_price.length; i++) {
+      select_price[i] = 0;
     }
   }
 
@@ -35,9 +37,11 @@ class Customer {
     customernum.clear();     
     customertotal = 0;
 
-    for (int i=0; i<14; i++) {
-      select_fre.set(i, 0);
-      select_pri.set(i, 0);
+    for (int i=0; i<select_fresh.length; i++) {
+      select_fresh[i] = 0;
+    }
+    for (int i=0; i<select_price.length; i++) {
+      select_price[i] = 0;
     }
     this.notbuy = 0;
   }
@@ -77,13 +81,15 @@ class Customer {
     int[] milkselect = new int[2];
 
     for (int i=0; i<num; i++) {
-      milkselect = supershelf.sales(this.sum, this.probnum);
+      probability(supershelf);
+      milkselect = supershelf.sales(this.sum, this.probnum);//効用の合計値・選択確率の配列
       select_milk(milkselect);
     }
   }
 
-  //牛乳の賞味期限と価格を正規化・選択確率を計算・選択確率の合計値を返す
+  //牛乳の賞味期限と価格を正規化・選択確率と選択確率の合計値を計算
   void probability(Supershelf supershelf) {
+
     if (supershelf.size() == 0)return;
 
     this.sum = 0;
@@ -96,7 +102,6 @@ class Customer {
         double y = 1.0 - (supershelf.get(i).get(j).price - money_min)/(double)(money_max - money_min);//price正規化
 
         double num = Math.exp(utility(x, y));  //牛乳一つに対する効用の計算
-
         probnum.add(num);
         utilitynum.add(utility(x, y));
 
@@ -120,19 +125,18 @@ class Customer {
 
   //なにを何回選んだか
   void select_milk(int[] selectmilk) {
+    if (selectmilk[0] == -1)return;
+
     if (1 <= selectmilk[0] && selectmilk[0] <=14) {
       int freshnum = 14 - selectmilk[0];
-      select_fre.set(freshnum, select_fre.get(freshnum)+1);
-    } else if (selectmilk[0] == 100) {
-      println(selectmilk[1]);
+      select_fresh[freshnum] = select_fresh[freshnum]+1;
+    } else if (selectmilk[0] == 0) {
       this.notbuy++;
       return;
     }
-    
-    if (selectmilk[1] == -1)return;
+
     int pricenum = (150 - selectmilk[1])/5;
-    println(selectmilk[1]);
-    select_pri.set(pricenum, select_pri.get(pricenum)+1);
+    select_price[pricenum] = select_price[pricenum]+1;
   }
 
 
@@ -145,12 +149,12 @@ class Customer {
     list.add(this.customertotal);//来店数
     //選択回数
     list.add(this.notbuy);//買わない
-    for (int i=0; i<(14-sales_deadline+1); i++) {
-      list.add(this.select_fre.get(i));
+    for (int i=0; i<select_fresh.length; i++) {
+      list.add(select_fresh[i]);
     }
 
-    for (int i=0; i<(14-sales_deadline+1); i++) {
-      list.add(this.select_pri.get(i));
+    for (int i=0; i<select_price.length; i++) {
+      list.add(select_price[i]);
     }
 
     customer_list.add(list);
@@ -158,8 +162,8 @@ class Customer {
 
   void addfile() {
     try {
-      PrintWriter file = new PrintWriter(new FileWriter(new File("/Users/inouemiyu/Desktop/milk_scm/scm_" + month() + "_" + day() +"/customer/customer_"+freshness+"_"+price+".csv"), true));
-      //PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\milk_scm\\scm_"+ month() + "_" + day() +"\\customer\\customer_"+freshness+"_"+price+".csv"), true));
+      //PrintWriter file = new PrintWriter(new FileWriter(new File("/Users/inouemiyu/Desktop/milk_scm/scm_" + month() + "_" + day() +"/customer/customer_"+freshness+"_"+price+".csv"), true));
+      PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\milk_scm\\scm_"+ month() + "_" + day() +"\\customer\\customer_"+freshness+"_"+price+".csv"), true));
 
       file.println("");
 

@@ -24,6 +24,7 @@ class Supershelf extends ArrayList <Milkstock> {
   //在庫量
   int inventory() {
     int inv = 0;
+
     for (int i=this.stock(); i<this.size(); i++) {
       inv += this.get(i).size();
     }
@@ -51,6 +52,7 @@ class Supershelf extends ArrayList <Milkstock> {
     return exp;
   }
 
+
   //前期に足らなかった牛乳を補充する
   void unloading(SuperTrack supertrack) {    
     restocknum = 0;//品出しした量
@@ -58,24 +60,30 @@ class Supershelf extends ArrayList <Milkstock> {
     int i = supertrack.size()-1;
 
     for (int j=0; j<supertrack.get(i).size(); j++) {
-      boolean noExpiration = true;
       if (supertrack.get(i).get(j).size() == 0)continue;
 
+      //スーパーの倉庫が空の場合
+      if (this.size() == 0) {
+        this.add((Milkstock)supertrack.get(i).get(j).clone());
+        restocknum += supertrack.get(i).get(j).size();
+        continue;
+      }
 
-      //納品された牛乳の賞味期限日数と同じ牛乳がstockにある場合
+      boolean noExpiration = true;
       int e = supertrack.get(i).get(j).expiration;
 
-      for (int l=0; l<this.size(); l++) {
+      //納品された牛乳の賞味期限日数と同じ牛乳がstockにある場合
+      for (int l=this.stock(); l<this.size(); l++) {
         if (e == this.get(l).expiration) {
           noExpiration = false;
-          this.get(l).addAll(supertrack.get(i).get(j));
+          this.get(l).addAll((Milkstock)supertrack.get(i).get(j).clone());
           restocknum += supertrack.get(i).get(j).size();
         }
       }
 
-      //納品された牛乳の賞味期限日数と同じ牛乳がstockにない場合 or スーパーの倉庫が空の場合
-      if (noExpiration == true || this.size() == 0) {
-        this.add(supertrack.get(i).get(j));
+      //納品された牛乳の賞味期限日数と同じ牛乳がstockにない場合
+      if (noExpiration == true) {
+        this.add((Milkstock)supertrack.get(i).get(j).clone());
         restocknum += supertrack.get(i).get(j).size();
       }
     }
@@ -83,15 +91,16 @@ class Supershelf extends ArrayList <Milkstock> {
 
 
   //ランダムに選択した牛乳を購入・販売する
-  int[] sales(double s, ArrayList<Double> probnum) {  
+  int[] sales(double s, ArrayList<Double> prob) {  
     int[] select_milk = new int[2];
 
     //スーパー商品棚に牛乳がなかったら機会損失
     if (this.inventory() == 0) {
       sales_loss++;
+      select_milk[0] = -1;
+      select_milk[1] = -1;
       return select_milk;
     }
-
     double random_num = s * Math.random();
     double prob_sum = 0;
     boolean buyJudge = false;
@@ -99,7 +108,8 @@ class Supershelf extends ArrayList <Milkstock> {
 
     for (int i=this.stock(); i<this.size(); i++) {
       for (int j=0; j<this.get(i).size(); j++) {
-        prob_sum += probnum.get(count);
+
+        prob_sum += prob.get(count);
 
         if (prob_sum >= random_num) {
           select_milk[0] = this.get(i).get(j).expiration;
@@ -122,37 +132,10 @@ class Supershelf extends ArrayList <Milkstock> {
   }
 
 
-
-
-  //  //販売
-  //  void sales(int c) {
-  //    this.visitors++;
-  //    if (this.inventory() == 0) {
-  //      sales_loss++;
-  //      return;
-  //    }
-
-  //    //買わないを選択した人（c番目＝買わない・(this.inventories()-1)+1番目が買わない選択肢）
-  //    if (c == this.inventory()) { 
-  //      buy.get(buy.size()-1).notbuy_milk();
-  //      return;
-  //    }
-
-  //    for (int i=this.stock(); i<this.size(); i++) {
-  //      for (int j=0; j<this.get(i).size(); j++) {
-  //        c--;
-  //        if (c == 0) {
-  //          buy.get(buy.size()-1).add(this.get(i).remove(j));
-  //          sales_num++;
-  //        }
-  //      }
-  //    }
-  //  }
-
   //販売期限を過ぎた牛乳を廃棄する
   void waste() {
     shelf_waste = 0;
-    for (int i=0; i<this.size(); i++) {
+    for (int i=this.stock(); i<this.size(); i++) {
       shelf_waste += this.get(i).waste(sales_deadline);
     }
 
