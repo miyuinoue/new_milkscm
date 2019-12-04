@@ -11,11 +11,11 @@ class Customer {
   int money_max;
   int money_min;
   int notbuy;
+  double sum;
 
-  ArrayList<Double> prob = new ArrayList<Double>();
-  ArrayList<Double> utility = new ArrayList<Double>();
-  ArrayList<Double> freshNorm = new ArrayList<Double>();//fresh
-  ArrayList<Double> priceNorm = new ArrayList<Double>();//price 
+
+  ArrayList<Double> probnum = new ArrayList<Double>();
+  ArrayList<Double> utilitynum = new ArrayList<Double>();
   ArrayList<Integer> select_fre = new ArrayList<Integer>();//何回選択したか
   ArrayList<Integer> select_pri = new ArrayList<Integer>();
 
@@ -74,58 +74,38 @@ class Customer {
   //客の選択確率を計算し，購入
   void buy(Supershelf supershelf) {
     int num = random_customer(day);
+    int[] milkselect = new int[2];
 
     for (int i=0; i<num; i++) {
-      normalization(supershelf);//賞味期限と価格を正規化
-      probability();
-      supershelf.sales(select());
+      milkselect = supershelf.sales(this.sum, this.probnum);
+      select_milk(milkselect);
     }
   }
 
-  //count番目の牛乳を購入する
-  int select() {     
-    double random_num = sum() * Math.random();
-    double prob_sum = 0;
-    int count = 0 ;
+  //牛乳の賞味期限と価格を正規化・選択確率を計算・選択確率の合計値を返す
+  void probability(Supershelf supershelf) {
+    if (supershelf.size() == 0)return;
 
-    //count番目の牛乳を購入する 
-    for (int i=0; i<prob.size(); i++) {
-      prob_sum += prob.get(i);
-      if (prob_sum >= random_num) {
-        count = i;
-        break;
+    this.sum = 0;
+    probnum.clear();
+    utilitynum.clear();
+
+    for (int i=supershelf.stock(); i<supershelf.size(); i++) {
+      for (int j=0; j<supershelf.get(i).size(); j++) {
+        double x = (supershelf.get(i).get(j).expiration - fresh_min)/(double)(fresh_max - fresh_min);  //fresh正規化
+        double y = 1.0 - (supershelf.get(i).get(j).price - money_min)/(double)(money_max - money_min);//price正規化
+
+        double num = Math.exp(utility(x, y));  //牛乳一つに対する効用の計算
+
+        probnum.add(num);
+        utilitynum.add(utility(x, y));
+
+        this.sum += num;//効用の合計値
       }
     }
-    return count;
+    probnum.add(Math.exp(not_buy()));//買わない効用を付け足す
+    this.sum += Math.exp(not_buy());//買わない効用を付け足す
   }
-
-  //選択確率P
-  void probability() {
-    prob.clear();
-    utility.clear();
-
-    for (int i=0; i<freshNorm.size(); i++) {
-      double num = Math.exp(utility(freshNorm.get(i), priceNorm.get(i)));  
-
-      prob.add(num);
-      utility.add(utility(freshNorm.get(i), priceNorm.get(i)));
-    }    
-
-    prob.add(Math.exp(not_buy()));//買わない効用を付け足す
-  }
-
-  //選択確率sum
-  double sum() {
-    double vsum = 0;
-
-    for (int i=0; i<freshNorm.size(); i++) {
-      vsum += Math.exp(utility(freshNorm.get(i), priceNorm.get(i)));
-    }
-    vsum += Math.exp(not_buy());//買わない効用を付け足す
-
-    return vsum;
-  }
-
 
   //効用U
   double utility(double f, double p) {
@@ -137,45 +117,24 @@ class Customer {
     return 30 + 30;//この時，効用が合計で100くらいで買わないが考慮されなくなる
   }
 
-  //freshとmoneyの正規化
-  void normalization(Supershelf supershelf) { 
-    freshNorm.clear();
-    priceNorm.clear();
-
-    if (supershelf.size() == 0)return;
-
-    int getnum = supershelf.stock();
-
-    for (int i=getnum; i<supershelf.size(); i++) {
-      for (int j=0; j<supershelf.get(i).size(); j++) {
-        double x = (supershelf.get(i).get(j).expiration - fresh_min)/(double)(fresh_max - fresh_min);  
-        double y = 1.0 - (supershelf.get(i).get(j).price - money_min)/(double)(money_max - money_min);
-
-        freshNorm.add(x);
-        priceNorm.add(y);
-      }
-    }
-  }
 
   //なにを何回選んだか
-  void select_milk() {
-    if (buy.size() == 0)return;
-
-    for (int i=0; i<buy.get(buy.size()-1).size(); i++) { 
-      if (1 <= buy.get(buy.size()-1).get(i).expiration && buy.get(buy.size()-1).get(i).expiration <=14) {
-        int num = 14 - buy.get(buy.size()-1).get(i).expiration;
-        select_fre.set(num, select_fre.get(num)+1);
-      } else if (buy.get(buy.size()-1).get(i).expiration == 100) {
-        this.notbuy++;
-      }
+  void select_milk(int[] selectmilk) {
+    if (1 <= selectmilk[0] && selectmilk[0] <=14) {
+      int freshnum = 14 - selectmilk[0];
+      select_fre.set(freshnum, select_fre.get(freshnum)+1);
+    } else if (selectmilk[0] == 100) {
+      println(selectmilk[1]);
+      this.notbuy++;
+      return;
     }
-
-    for (int i=0; i<buy.get(buy.size()-1).size(); i++) {
-      if (buy.get(buy.size()-1).get(i).price == -1)continue;
-      int num = (150 - buy.get(buy.size()-1).get(i).price)/5;
-      select_pri.set(num, select_pri.get(num)+1);
-    }
+    
+    if (selectmilk[1] == -1)return;
+    int pricenum = (150 - selectmilk[1])/5;
+    println(selectmilk[1]);
+    select_pri.set(pricenum, select_pri.get(pricenum)+1);
   }
+
 
 
   //選択回数のリスト
@@ -199,8 +158,8 @@ class Customer {
 
   void addfile() {
     try {
-      //PrintWriter file = new PrintWriter(new FileWriter(new File("/Users/miyuinoue/Desktop/milk_scm/scm_" + month() + "_" + day() +"/customer/customer_"+freshness+"_"+money+".csv"), true));
-      PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\milk_scm\\scm_"+ month() + "_" + day() +"\\customer\\customer_"+freshness+"_"+price+".csv"), true));
+      PrintWriter file = new PrintWriter(new FileWriter(new File("/Users/inouemiyu/Desktop/milk_scm/scm_" + month() + "_" + day() +"/customer/customer_"+freshness+"_"+price+".csv"), true));
+      //PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\milk_scm\\scm_"+ month() + "_" + day() +"\\customer\\customer_"+freshness+"_"+price+".csv"), true));
 
       file.println("");
 

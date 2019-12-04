@@ -70,7 +70,7 @@ void draw() {
   customer.fresh_price();//正規化するための賞味期限と価格のリストの作成
 
   //シミュレーション回数
-  for (int time=1; time<=50; time++) {
+  for (int time=1; time<=1; time++) {
     maker_wastes.clear();
     super_wastes.clear();
     total_wastes.clear();
@@ -146,8 +146,6 @@ void main_scm() {
     }
 
     //リストの追加
-    customer.select_milk(); 
-
     maker.maker_list(); 
     supermarket.super_list(); 
     superstock.stock_list(); 
@@ -197,8 +195,8 @@ void reset() {
 void makerwaste_file() {
   try {
 
-    //PrintWriter file = new PrintWriter(new FileWriter(new File("/Users/miyuinoue/Desktop/milk_scm/scm_" + month() + "_" + day() +"/waste/maker_waste.csv"), true));
-    PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\milk_scm\\scm_"+ month() + "_" + day() +"\\waste\\maker_waste.csv"), true)); 
+    PrintWriter file = new PrintWriter(new FileWriter(new File("/Users/inouemiyu/Desktop/milk_scm/scm_" + month() + "_" + day() +"/waste/maker_waste.csv"), true));
+    //PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\milk_scm\\scm_"+ month() + "_" + day() +"\\waste\\maker_waste.csv"), true)); 
 
     file.print(timemaker); 
     file.print(","); 
@@ -226,8 +224,8 @@ void makerwaste_file() {
 
 void superwaste_file() {
   try {
-    //PrintWriter file = new PrintWriter(new FileWriter(new File("/Users/miyuinoue/Desktop/milk_scm/scm_" + month() + "_" + day() +"/waste/super_waste.csv"), true));
-    PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\milk_scm\\scm_"+ month() + "_" + day() +"\\waste\\super_waste.csv"), true)); 
+    PrintWriter file = new PrintWriter(new FileWriter(new File("//Users/inouemiyu/Desktop/milk_scm/scm_" + month() + "_" + day() +"/waste/super_waste.csv"), true));
+    //PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\milk_scm\\scm_"+ month() + "_" + day() +"\\waste\\super_waste.csv"), true)); 
 
     file.print(timesuper); 
     file.print(","); 
@@ -254,9 +252,9 @@ void superwaste_file() {
 
 void totalwaste_file() {
   try {
-    PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\milk_scm\\scm_"+ month() + "_" + day() +"\\waste\\total_waste.csv"), true)); 
+    //PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\milk_scm\\scm_"+ month() + "_" + day() +"\\waste\\total_waste.csv"), true)); 
     //PrintWriter file = new PrintWriter(new FileWriter(new File("/Users/miyuinoue/Desktop/milk_scm/scm_" + month() + "_" + day() +"/waste/total_waste.csv"), true));
-    //PrintWriter file = new PrintWriter(new FileWriter(new File("/Users/inouemiyu/Desktop/milk_scm/scm_" + month() + "_" + day() +"/waste/total_waste.csv"), true));
+    PrintWriter file = new PrintWriter(new FileWriter(new File("/Users/inouemiyu/Desktop/milk_scm/scm_" + month() + "_" + day() +"/waste/total_waste.csv"), true));
 
     file.print(timetotal); 
     file.print(","); 

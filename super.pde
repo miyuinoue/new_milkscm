@@ -111,8 +111,8 @@ class Supermarket {
 
   void addfile() {
     try {
-      //PrintWriter file = new PrintWriter(new FileWriter(new File("/Users/miyuinoue/Desktop/milk_scm/scm_" + month() + "_" + day() +"/super/super_"+freshness+"_"+price+".csv"), true));
-      PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\milk_scm\\scm_"+ month() + "_" + day() +"\\super\\super_"+freshness+"_"+price+".csv"), true));
+      PrintWriter file = new PrintWriter(new FileWriter(new File("/Users/inouemiyu/Desktop/milk_scm/scm_" + month() + "_" + day() +"/super/super_"+freshness+"_"+price+".csv"), true));
+      //PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\milk_scm\\scm_"+ month() + "_" + day() +"\\super\\super_"+freshness+"_"+price+".csv"), true));
 
       file.println("");
       for (int i=0; i<7; i++) {
@@ -179,6 +179,8 @@ class Supermarket {
       file.print("hanbai-su");
       file.print(",");
       file.print("kikaisonnshitsu");
+      file.print(",");
+      file.print("kawanai");
       file.print(",");
       file.print("haiki-ryo");
       file.print(",");

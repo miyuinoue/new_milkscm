@@ -6,6 +6,8 @@ class Supershelf extends ArrayList <Milkstock> {
   int shelf_waste;
   int shelf_totalwaste = 0;
 
+  int notbuy;
+
   Supershelf() {
   }
 
@@ -79,30 +81,73 @@ class Supershelf extends ArrayList <Milkstock> {
     }
   }
 
-  //販売
-  void sales(int c) {
-    this.visitors++;
+
+  //ランダムに選択した牛乳を購入・販売する
+  int[] sales(double s, ArrayList<Double> probnum) {  
+    int[] select_milk = new int[2];
+
+    //スーパー商品棚に牛乳がなかったら機会損失
     if (this.inventory() == 0) {
       sales_loss++;
-      return;
+      return select_milk;
     }
 
-    //買わないを選択した人（c番目＝買わない・(this.inventories()-1)+1番目が買わない選択肢）
-    if (c == this.inventory()) { 
-      buy.get(buy.size()-1).notbuy_milk();
-      return;
-    }
+    double random_num = s * Math.random();
+    double prob_sum = 0;
+    boolean buyJudge = false;
+    int count = 0 ;
 
     for (int i=this.stock(); i<this.size(); i++) {
       for (int j=0; j<this.get(i).size(); j++) {
-        c--;
-        if (c == 0) {
+        prob_sum += probnum.get(count);
+
+        if (prob_sum >= random_num) {
+          select_milk[0] = this.get(i).get(j).expiration;
+          select_milk[1] = this.get(i).get(j).price;
+
           buy.get(buy.size()-1).add(this.get(i).remove(j));
-          sales_num++;
+          this.sales_num++;
+          buyJudge = true;
+          break;
         }
+        count++;
       }
     }
+    //買わない牛乳を選択した場合
+    if (buyJudge == false) {
+      buy.get(buy.size()-1).notbuy_milk();
+    }
+
+    return select_milk;
   }
+
+
+
+
+  //  //販売
+  //  void sales(int c) {
+  //    this.visitors++;
+  //    if (this.inventory() == 0) {
+  //      sales_loss++;
+  //      return;
+  //    }
+
+  //    //買わないを選択した人（c番目＝買わない・(this.inventories()-1)+1番目が買わない選択肢）
+  //    if (c == this.inventory()) { 
+  //      buy.get(buy.size()-1).notbuy_milk();
+  //      return;
+  //    }
+
+  //    for (int i=this.stock(); i<this.size(); i++) {
+  //      for (int j=0; j<this.get(i).size(); j++) {
+  //        c--;
+  //        if (c == 0) {
+  //          buy.get(buy.size()-1).add(this.get(i).remove(j));
+  //          sales_num++;
+  //        }
+  //      }
+  //    }
+  //  }
 
   //販売期限を過ぎた牛乳を廃棄する
   void waste() {
@@ -150,9 +195,9 @@ class Supershelf extends ArrayList <Milkstock> {
       list.add(customer.customernum.get(i));
     }
     list.add(customer.customertotal);//総来客数
-
     list.add(this.sales_num);//販売数
     list.add(this.sales_loss);//機会損失
+    list.add(customer.notbuy);//買わない
     list.add(this.shelf_waste);//廃棄量
     list.add(this.shelf_totalwaste);//総廃棄量
 
