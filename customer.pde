@@ -10,7 +10,6 @@ class Customer {
   int fresh_min;
   int money_max;
   int money_min;
-  int notbuy;
   double sum;
 
 
@@ -18,7 +17,6 @@ class Customer {
   ArrayList<Double> utilitynum = new ArrayList<Double>();
   int[] select_fresh = new int[14-sales_deadline+1];//何回選択したか
   int[] select_price = new int[14-sales_deadline+1];
-
 
   Customer() {
   }
@@ -43,7 +41,7 @@ class Customer {
     for (int i=0; i<select_price.length; i++) {
       select_price[i] = 0;
     }
-    this.notbuy = 0;
+    //this.notbuy = 0;
   }
 
   void fresh_price() {
@@ -96,7 +94,10 @@ class Customer {
     probnum.clear();
     utilitynum.clear();
 
-    for (int i=supershelf.stock(); i<supershelf.size(); i++) {
+    //for (int i=supershelf.stock(); i<supershelf.size(); i++) {
+    for (int i=0; i<supershelf.size(); i++) {
+      if (supershelf.get(i).expiration < sales_deadline)continue;
+      
       for (int j=0; j<supershelf.get(i).size(); j++) {
         double x = (supershelf.get(i).get(j).expiration - fresh_min)/(double)(fresh_max - fresh_min);  //fresh正規化
         double y = 1.0 - (supershelf.get(i).get(j).price - money_min)/(double)(money_max - money_min);//price正規化
@@ -129,26 +130,24 @@ class Customer {
 
     if (1 <= selectmilk[0] && selectmilk[0] <=14) {
       int freshnum = 14 - selectmilk[0];
-      select_fresh[freshnum] = select_fresh[freshnum]+1;
-    } else if (selectmilk[0] == 0) {
-      this.notbuy++;
-      return;
+      select_fresh[freshnum]++;
     }
 
     int pricenum = (150 - selectmilk[1])/5;
-    select_price[pricenum] = select_price[pricenum]+1;
+    if(selectmilk[1] != 150 && selectmilk[1] != 105)println(selectmilk[1]);
+    select_price[pricenum]++;
   }
 
 
 
   //選択回数のリスト
-  void customer_list() {
+  void customer_list(Supershelf supershelf) {
     ArrayList<Integer> list = new ArrayList<Integer>();
 
     list.add(day);//日にち
     list.add(this.customertotal);//来店数
     //選択回数
-    list.add(this.notbuy);//買わない
+    list.add(supershelf.notbuy);//買わない
     for (int i=0; i<select_fresh.length; i++) {
       list.add(select_fresh[i]);
     }

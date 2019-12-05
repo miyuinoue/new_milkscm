@@ -1,7 +1,10 @@
 class Milkstock extends ArrayList <Milk> {
   int expiration;
+  int price;
+  int waste;
 
   Milkstock() {
+    this.waste = -1;//廃棄でない牛乳はー１
   }
 
   //賞味期限の変更
@@ -28,7 +31,13 @@ class Milkstock extends ArrayList <Milk> {
     int waste_size = 0;
     if (this.size() == 0)return 0;
 
-    if (this.expiration == num) {      
+    if (this.expiration == num) {  
+      //廃棄の牛乳は１
+      this.waste = 1;
+      for (int i=0; i<this.size(); i++) {
+        this.get(i).waste();
+      }
+
       waste_size = this.size();
     }
 

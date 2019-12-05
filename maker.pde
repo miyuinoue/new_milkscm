@@ -74,7 +74,10 @@ class Maker extends ArrayList <Milkstock> {
   //在庫量（10日の在庫は一日の最後に廃棄になるのでカウントしない）
   int inventory() {
     int inv = 0;
-    for (int i=stock(); i<this.size(); i++) {
+    //for (int i=this.stock(); i<this.size(); i++) {
+    for (int i=0; i<this.size(); i++) {
+      if (this.get(i).expiration < delivery_deadline)continue;
+
       if (this.get(i).expiration == delivery_deadline)continue;
       inv += this.get(i).size();
     }
@@ -108,9 +111,11 @@ class Maker extends ArrayList <Milkstock> {
     makertrack.add(new Track(m));//Track(5)
 
     int carry;
-    for (int i=this.stock(); i<this.size(); i++) {
-      carry= min(num, this.get(i).size());
+    //for (int i=this.stock(); i<this.size(); i++) {
+    for (int i=0; i<this.size(); i++) {
+      if (this.get(i).expiration < delivery_deadline)continue;
 
+      carry= min(num, this.get(i).size());
       num -= carry;
 
       for (int j=0; j<carry; j++) {
@@ -123,25 +128,26 @@ class Maker extends ArrayList <Milkstock> {
     maker_loss = num;
   }
 
-  //在庫の牛乳が何番目からか
-  int stock() {
-    int exp = this.size();
+  ////在庫の牛乳が何番目からか
+  //int stock() {
+  //  int exp = this.size();
 
-    for (int i=0; i<this.size(); i++) {
-      if (this.get(i).size() == 0)continue;
-
-      if (this.get(i).expiration >= delivery_deadline) {
-        exp = i;
-        break;
-      }
-    }
-    return exp;
-  }
+  //  for (int i=0; i<this.size(); i++) {
+  //    if (this.get(i).expiration >= delivery_deadline) {
+  //      exp = i;
+  //      break;
+  //    }
+  //  }
+  //  return exp;
+  //}
 
   //納品期限を過ぎた牛乳を廃棄する
   void waste() {
     maker_waste = 0;
-    for (int i=this.stock(); i<this.size(); i++) {
+    //for (int i=this.stock(); i<this.size(); i++) {
+    for (int i=0; i<this.size(); i++) {
+      if (this.get(i).expiration < delivery_deadline)continue;
+
       maker_waste += this.get(i).waste(delivery_deadline);
     }
 

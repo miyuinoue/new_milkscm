@@ -82,12 +82,18 @@ class Supermarket {
     int stockinv = 0;
     int shelfinv = 0;
 
-    for (int i=superstock.stock(); i<superstock.size(); i++) {
+    //for (int i=superstock.stock(); i<superstock.size(); i++) {
+    for (int i=0; i<superstock.size(); i++) {
+      if (superstock.get(i).expiration < sales_deadline)continue;
+
       if (superstock.get(i).expiration == sales_deadline)continue;
       stockinv += superstock.get(i).size();
     }
 
-    for (int i=supershelf.stock(); i<supershelf.size(); i++) {
+    //for (int i=supershelf.stock(); i<supershelf.size(); i++) {
+    for (int i=0; i<supershelf.size(); i++) {
+      if (supershelf.get(i).expiration < sales_deadline)continue;
+      
       if (supershelf.get(i).expiration == sales_deadline)continue;
       shelfinv += supershelf.get(i).size();
     }
@@ -140,7 +146,7 @@ class Supermarket {
       file.print(",");
       file.print("haxtyuu-ryo");
       file.print(",");  
-              
+
       //superstock
       file.print(",");
       file.print("syoumikigenn");//14～

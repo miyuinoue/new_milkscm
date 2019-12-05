@@ -37,7 +37,10 @@ class Superstock extends ArrayList <Milkstock> {
       int e = makertrack.get(i).get(j).expiration;
 
       //納品された牛乳の賞味期限日数と同じ牛乳がstockにある場合
-      for (int k=this.stock(); k<this.size(); k++) {
+      //for (int k=this.stock(); k<this.size(); k++) {
+      for (int k=0; k<this.size(); k++) {
+        if (this.get(k).expiration < sales_deadline)continue;
+
         if (e == this.get(k).expiration) {
           noExpiration = false;
           this.get(k).addAll((Milkstock)makertrack.get(i).get(j).clone());
@@ -64,7 +67,10 @@ class Superstock extends ArrayList <Milkstock> {
     supertrack.add(new Track(14-sales_deadline+1));
 
     int carry;
-    for (int i=this.stock(); i<this.size(); i++) {
+    //for (int i=this.stock(); i<this.size(); i++) {
+    for (int i=0; i<this.size(); i++) {
+      if (this.get(i).expiration < sales_deadline)continue;
+
       carry = min(s, this.get(i).size());
       s -= carry;
 
@@ -74,75 +80,56 @@ class Superstock extends ArrayList <Milkstock> {
       }
       if (s <= 0) break;
     }
-    
+
 
     stock_loss = s;
 
     restockList.append(loadingnum);//t期に何個品出ししたかのリスト
   }
 
-  //在庫の牛乳が何番目からか
-  int stock() {
-    int exp = this.size();
+  ////在庫の牛乳が何番目からか
+  //int stock() {
+  //  int exp = this.size();
 
-    for (int i=0; i<this.size(); i++) {
-      if (this.get(i).size() == 0)continue;
+  //  for (int i=0; i<this.size(); i++) {
+  //    //if (this.get(i).size() == 0)continue;
 
-      if (this.get(i).expiration >= sales_deadline) {
-        exp = i;
-        break;
-      }
-    }
-    return exp;
-  }
-  
-    //在庫量
-  int inventory() {
-    int inv = 0;
-    boolean a = false;
-    for (int i=this.stock(); i<this.size(); i++) {
-      if (this.get(i).expiration < sales_deadline)a = true;
-    }
-    if (a == true)println("start");
-    for (int i=this.stock(); i<this.size(); i++) {
-
-      //if (this.get(i).expiration < sales_deadline)println("inv"+this.get(i).expiration);
-      if (a == true)println("inv"+this.get(i).expiration);
-
-      inv += this.get(i).size();
-    }
-    if (a == true)println("");
-    if (a == true)println("");
-
-    return inv;
-  }
+  //    if (this.get(i).expiration >= sales_deadline) {
+  //      exp = i;
+  //      break;
+  //    }
+  //  }
+  //  return exp;
+  //}
 
   //販売期限を過ぎた牛乳を廃棄する
   void waste() {
     stock_waste = 0;
-    for (int i=this.stock(); i<this.size(); i++) {
+    //for (int i=this.stock(); i<this.size(); i++) {
+    for (int i=0; i<this.size(); i++) {
+      if (this.get(i).expiration < sales_deadline)continue;
       stock_waste += this.get(i).waste(sales_deadline);
     }
 
     stock_totalwaste += stock_waste;
   }
 
-  //値段の設定
+  //値段の設定（今は一律150円）
   int milk_price(int r) {
     int num = E - r;
-    return (150-5*num);
+    //return (150-5*num);
+    return 150;
   }
 
   //賞味期限が残り3日になったら3割引きする
   void discount3(int d) {
-    //int d = 3;//残り日数
+    //for (int i=stock(); i<this.size(); i++) {
     for (int i=0; i<this.size(); i++) {
+      if (this.get(i).expiration < sales_deadline)continue;
 
-      if (this.get(i).expiration != 5 & this.get(i).expiration != 6 & (this.get(i).expiration != 7)) {
-        continue;
-      } else {
+      if (5 <= this.get(i).expiration && this.get(i).expiration <= 7) {
         for (int j=0; j<this.get(i).size(); j++) {
-          this.get(i).get(j).price = d;
+          this.get(i).price(d);
         }
       }
     }

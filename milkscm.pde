@@ -70,7 +70,7 @@ void draw() {
   customer.fresh_price();//正規化するための賞味期限と価格のリストの作成
 
   //シミュレーション回数
-  for (int time=1; time<=1; time++) {
+  for (int time=1; time<=50; time++) {
     maker_wastes.clear();
     super_wastes.clear();
     total_wastes.clear();
@@ -90,6 +90,7 @@ void draw() {
 
         reset();
         main_scm();
+
         maker_waste.add(maker.maker_totalwaste);
         super_waste.add(superstock.stock_totalwaste + supershelf.shelf_totalwaste);
         total_waste.add(maker.maker_totalwaste + superstock.stock_totalwaste + supershelf.shelf_totalwaste);
@@ -122,7 +123,7 @@ void main_scm() {
     for (int t=1; t<=T; t++) {
       if (t==1) {
         maker.shipment(makertrack, this.order);//メーカから出荷
-        makertrack.addfile();
+        //makertrack.addfile();
 
         superstock.delivery(makertrack); //スーパー倉庫に納品
       }
@@ -149,7 +150,7 @@ void main_scm() {
     supermarket.super_list(); 
     superstock.stock_list(); 
     supershelf.shelf_list(customer); 
-    customer.customer_list(); 
+    customer.customer_list(supershelf); 
 
     //日付の更新
     maker.m_daychange(); 
@@ -160,12 +161,13 @@ void main_scm() {
     superstock.discount3((int)(150*0.7)); //150円の3割引き
     supershelf.discount3((int)(150*0.7)); //150円の3割引き
 
-
     day++;
   }
+
   maker.addfile(); 
   supermarket.addfile(); 
   customer.addfile(); 
+
   //makertrack.maker_addfile();
   //supertrack.super_addfile();
 }
