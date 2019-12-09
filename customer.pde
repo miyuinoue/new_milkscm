@@ -97,7 +97,7 @@ class Customer {
     //for (int i=supershelf.stock(); i<supershelf.size(); i++) {
     for (int i=0; i<supershelf.size(); i++) {
       if (supershelf.get(i).expiration < sales_deadline)continue;
-      
+
       for (int j=0; j<supershelf.get(i).size(); j++) {
         double x = (supershelf.get(i).get(j).expiration - fresh_min)/(double)(fresh_max - fresh_min);  //fresh正規化
         double y = 1.0 - (supershelf.get(i).get(j).price - money_min)/(double)(money_max - money_min);//price正規化
@@ -134,7 +134,7 @@ class Customer {
     }
 
     int pricenum = (150 - selectmilk[1])/5;
-    if(selectmilk[1] != 150 && selectmilk[1] != 105)println(selectmilk[1]);
+    if (selectmilk[1] != 150 && selectmilk[1] != 105)println(selectmilk[1]);
     select_price[pricenum]++;
   }
 
@@ -159,27 +159,17 @@ class Customer {
     customer_list.add(list);
   }
 
-  void addfile() {
+  void newfile() {
     try {
-      //PrintWriter file = new PrintWriter(new FileWriter(new File("/Users/inouemiyu/Desktop/milk_scm/scm_" + month() + "_" + day() +"/customer/customer_"+freshness+"_"+price+".csv"), true));
-      PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\milk_scm\\scm_"+ month() + "_" + day() +"\\customer\\customer_"+freshness+"_"+price+".csv"), true));
-
-      file.println("");
+      PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\milk_scm\\scm_"+ month() + "_" + day() +"\\customer\\customer_"+freshness+"_"+price+".csv"))); 
+      //PrintWriter file = new PrintWriter(new FileWriter(new File("/Users/inouemiyu/Desktop/milk_scm/scm_" + month() + "_" + day() +"/customer/customer_"+freshness+"_"+price+".csv")));
 
       file.print("day");
 
       file.print(",");
-      file.print("raikyaku-suu");
-
+      file.print("raikyakusuu");
       file.print(",");
-      file.print("senntaku-kaisuu");
-      file.print(",");
-      file.println("");
-
       int kakaku = 150;
-      file.print(",");
-      file.print(",");
-
       file.print("kawanai");
 
       for (int i=14; i>=sales_deadline; i--) {
@@ -195,6 +185,18 @@ class Customer {
       file.print(",");
 
       file.println("");
+      file.close();
+    }
+    catch (IOException e) {
+      println(e);
+      e.printStackTrace();
+    }
+  }
+
+  void addfile() {
+    try {
+      PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\milk_scm\\scm_"+ month() + "_" + day() +"\\customer\\customer_"+freshness+"_"+price+".csv"), true)); 
+      //PrintWriter file = new PrintWriter(new FileWriter(new File("/Users/inouemiyu/Desktop/milk_scm/scm_" + month() + "_" + day() +"/customer/customer_"+freshness+"_"+price+".csv"), true));
 
       for (int i=0; i<customer_list.size(); i++) {
         for (int j=0; j<customer_list.get(i).size(); j++) {
@@ -203,8 +205,6 @@ class Customer {
         }
         file.println("");
       }
-
-      file.println("");
 
       file.close();
     }

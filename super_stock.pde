@@ -2,8 +2,10 @@ class Superstock extends ArrayList <Milkstock> {
   IntList restockList = new IntList();
 
   int delivery;
+  int total_delivery = 0;
   int loadingnum;
   int stock_loss;
+  int total_stock_loss = 0;
   int stock_waste;
   int stock_totalwaste = 0;
 
@@ -16,6 +18,12 @@ class Superstock extends ArrayList <Milkstock> {
       this.get(i).daychange();
     }
     restockList.clear();
+  }
+
+  void reset() {
+    total_stock_loss = 0;
+    stock_totalwaste = 0;
+    total_delivery = 0;
   }
 
   void delivery(MakerTrack makertrack) {    
@@ -56,6 +64,8 @@ class Superstock extends ArrayList <Milkstock> {
         delivery += makertrack.get(i).get(j).size();
       }
     }
+
+    total_delivery += delivery;
   }
 
   //賞味期限が古い商品から順に品出しrestockingする
@@ -80,27 +90,11 @@ class Superstock extends ArrayList <Milkstock> {
       }
       if (s <= 0) break;
     }
-
-
     stock_loss = s;
 
+    total_stock_loss += stock_loss;
     restockList.append(loadingnum);//t期に何個品出ししたかのリスト
   }
-
-  ////在庫の牛乳が何番目からか
-  //int stock() {
-  //  int exp = this.size();
-
-  //  for (int i=0; i<this.size(); i++) {
-  //    //if (this.get(i).size() == 0)continue;
-
-  //    if (this.get(i).expiration >= sales_deadline) {
-  //      exp = i;
-  //      break;
-  //    }
-  //  }
-  //  return exp;
-  //}
 
   //販売期限を過ぎた牛乳を廃棄する
   void waste() {
@@ -154,6 +148,7 @@ class Superstock extends ArrayList <Milkstock> {
       }
     }
     list.add(this.delivery);//納品量
+    list.add(this.total_delivery);//総納品量
     //品出し出荷量
     if (this.restockList.size()==0) {
       for (int i=0; i<3; i++)list.add(0);
@@ -162,6 +157,7 @@ class Superstock extends ArrayList <Milkstock> {
       list.add(this.restockList.get(i));
     }
     list.add(this.stock_loss);//機会損失
+    list.add(this.total_stock_loss);//総機会損失
     list.add(this.stock_waste);//廃棄量
     list.add(this.stock_totalwaste);//総廃棄量
 

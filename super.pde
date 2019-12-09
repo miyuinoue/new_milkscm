@@ -2,6 +2,7 @@ class Supermarket {
   IntList demand = new IntList();
 
   int order_quantity = 0;
+  int total_order_quantity = 0;
   float standard_deviation = 0;
   float demand_forecast = 0;
   float safety_factor = 1.65;
@@ -17,6 +18,10 @@ class Supermarket {
     for (int i=0; i<7; i++) {
       this.demand.append(100);
     }
+  }
+
+  void reset() {
+    total_order_quantity = 0;
   }
 
   //需要予測して発注量決定
@@ -74,6 +79,8 @@ class Supermarket {
     capa = (shelf_capacity + stock_capacity) - inv;//150-在庫
     if (capa < order_quantity)order_quantity = capa;
 
+    total_order_quantity += order_quantity;
+
     return order_quantity;
   }
 
@@ -93,7 +100,7 @@ class Supermarket {
     //for (int i=supershelf.stock(); i<supershelf.size(); i++) {
     for (int i=0; i<supershelf.size(); i++) {
       if (supershelf.get(i).expiration < sales_deadline)continue;
-      
+
       if (supershelf.get(i).expiration == sales_deadline)continue;
       shelfinv += supershelf.get(i).size();
     }
@@ -110,31 +117,15 @@ class Supermarket {
     list.add((int)this.standard_deviation);//標準偏差
     list.add(this.saftystock_super);//安全在庫
     list.add(this.order_quantity);//発注量
+    list.add(this.total_order_quantity);//総発注量
 
     super_list.add(list);
   }
 
-
-  void addfile() {
+  void newfile() {
     try {
-      //PrintWriter file = new PrintWriter(new FileWriter(new File("/Users/inouemiyu/Desktop/milk_scm/scm_" + month() + "_" + day() +"/super/super_"+freshness+"_"+price+".csv"), true));
+      //PrintWriter file = new PrintWriter(new FileWriter(new File("/Users/inouemiyu/Desktop/milk_scm/scm_" + month() + "_" + day() +"/super/super_"+freshness+"_"+price+".csv")));
       PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\milk_scm\\scm_"+ month() + "_" + day() +"\\super\\super_"+freshness+"_"+price+".csv"), true));
-
-      file.println("");
-      for (int i=0; i<7; i++) {
-        file.print(",");
-      }
-      file.print(",");
-
-      file.print("[SUPERSTOCK]");
-      for (int i=0; i<18; i++) {
-        file.print(",");
-      }
-
-      file.print("[SUPERSHELF]");
-
-
-      file.println("");
 
       file.print("day"); 
       file.print(",");
@@ -144,90 +135,77 @@ class Supermarket {
       file.print(",");
       file.print("annzennzaiko");
       file.print(",");
-      file.print("haxtyuu-ryo");
-      file.print(",");  
+      file.print("haxtyuuryo");
+      file.print(","); 
+      file.print("totalhaxtyuuryo");
+      file.print(",");
 
       //superstock
       file.print(",");
-      file.print("syoumikigenn");//14～
       for (int i=14; i>(sales_deadline-1); i--) {
+        file.print(i + "niti");
         file.print(",");
       }
-      file.print("nouhinn-ryo");
+      file.print("nouhinnryo");
       file.print(",");
-      file.print("shinadashi-ryo");
+      file.print("totalnouhinnryo");
+      file.print(",");
       for (int i=0; i<T; i++) {
+        file.print("shinadashi" + (i+1) + "ki"); 
         file.print(",");
-      } 
+      }
       file.print("kikaisonnshitsu");
       file.print(",");
-      //file.print("総品出し量");
-      //file.print(",");
-      file.print("haiki-ryo");
+      file.print("totalkikaisonnshitsu");
       file.print(",");
-      file.print("total-haiki-ryo");
+      file.print("haikiryo");
+      file.print(",");
+      file.print("totalhaikiryo");
       file.print(",");
 
       //supershelf
       file.print(",");
-      file.print("syoumikigenn");//14～5日
       for (int i=14; i>(sales_deadline-1); i--) {
+        file.print(i + "niti");
         file.print(",");
       }
-      file.print("shinadashi-ryo");//1期ごとの在庫量を出力する？
+      file.print("shinadashiryo");//1期ごとの在庫量を出力する？
       file.print(",");
-      file.print("raikyaku-su");
       for (int i=0; i<T; i++) {
+        file.print("kyaku" + (i+1) + "ki"); 
         file.print(",");
-      } 
-      file.print("total-raikyaku-su");//在庫数をいれるべき？
+      }
+      file.print("totalraikyakusu");//在庫数をいれるべき？
       file.print(",");
-      file.print("hanbai-su");
+      file.print("hanbaisu");
+      file.print(",");
+      file.print("totalhanbaisu");
       file.print(",");
       file.print("kikaisonnshitsu");
       file.print(",");
+      file.print("totalkikaisonnshitsu");
+      file.print(",");
       file.print("kawanai");
       file.print(",");
-      file.print("haiki-ryo");
+      file.print("haikiryo");
       file.print(",");
-      file.print("total-haiki-ryo");
+      file.print("totalhaikiryo");
       file.print(",");
-
 
       file.println("");
+      file.close();
+    }
+    catch (IOException e) {
+      println(e);
+      e.printStackTrace();
+    }
+  }
 
-      for (int i=0; i<5; i++) {
-        file.print(",");
-      }
-      //stock
-      for (int i=14; i>(sales_deadline-1); i--) {
-        file.print(",");
-        file.print(i + "niti");
-      }
 
-      file.print(",");
-      file.print(",");
-      for (int i=0; i<T; i++) {
-        file.print((i+1) + "ki"); 
-        file.print(",");
-      }
-      file.print(",");
-      file.print(",");
-      file.print(",");
-
-      //shelf
-      for (int i=14; i>(sales_deadline-1); i--) {
-        file.print(",");
-        file.print(i + "niti");
-      }
-      file.print(",");
-      file.print(",");
-      for (int i=0; i<T; i++) {
-        file.print((i+1) + "ki"); 
-        file.print(",");
-      }
-
-      file.println("");
+  void addfile() {
+    try {
+      //PrintWriter file = new PrintWriter(new FileWriter(new File("/Users/inouemiyu/Desktop/milk_scm/scm_" + month() + "_" + day() +"/super/super_"+freshness+"_"+price+".csv"), true));
+      PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\milk_scm\\scm_"+ month() + "_" + day() +"\\super\\super_"+freshness+"_"+price+".csv"), true));
 
       for (int i=0; i<super_list.size(); i++) {
         for (int j=0; j<super_list.get(i).size(); j++) {
@@ -248,8 +226,6 @@ class Supermarket {
         }
         file.println("");
       }
-
-      file.println("");
 
       file.close();
     }

@@ -43,12 +43,9 @@ ArrayList<ArrayList<Integer>> stock_list = new ArrayList<ArrayList<Integer>>();
 ArrayList<ArrayList<Integer>> shelf_list = new ArrayList<ArrayList<Integer>>();
 ArrayList<ArrayList<Integer>> customer_list = new ArrayList<ArrayList<Integer>>();
 
-ArrayList<Integer> maker_waste;
-ArrayList<Integer> super_waste;
-ArrayList<Integer> total_waste;
-ArrayList<ArrayList<Integer>> maker_wastes = new ArrayList<ArrayList<Integer>>();
-ArrayList<ArrayList<Integer>> super_wastes = new ArrayList<ArrayList<Integer>>();
-ArrayList<ArrayList<Integer>> total_wastes = new ArrayList<ArrayList<Integer>>();
+ArrayList<ArrayList<Float>> maker_wastes = new ArrayList<ArrayList<Float>>();
+ArrayList<ArrayList<Float>> super_wastes = new ArrayList<ArrayList<Float>>();
+ArrayList<ArrayList<Float>> total_wastes = new ArrayList<ArrayList<Float>>();
 
 
 
@@ -69,42 +66,58 @@ void draw() {
 
   customer.fresh_price();//正規化するための賞味期限と価格のリストの作成
 
+
   //シミュレーション回数
-  for (int time=1; time<=50; time++) {
-    maker_wastes.clear();
-    super_wastes.clear();
-    total_wastes.clear();
+  //for (int time=1; time<=49; time++) {
+  //maker_wastes.clear();
+  //super_wastes.clear();
+  //total_wastes.clear();
 
 
-    //効用freshness
-    for (int f=0; f<= 100; f+=10) {
-      freshness = f;
+  //効用freshness
+  for (int f=0; f<= 100; f+=10) {
+    freshness = f;
 
-      maker_waste = new ArrayList<Integer>();
-      super_waste = new ArrayList<Integer>();   
-      total_waste = new ArrayList<Integer>();
+    ArrayList<Float> maker_waste = new ArrayList<Float>();
+    ArrayList<Float> super_waste = new ArrayList<Float>();   
+    ArrayList<Float> total_waste = new ArrayList<Float>();
 
-      //効用money
-      for (int p=0; p<=100; p+=10) {
-        price = p;
+    //効用money
+    for (int p=0; p<=100; p+=10) {
+      price = p;
+      
+      maker.newfile(); 
+      supermarket.newfile(); 
+      customer.newfile(); 
+
+      int[] maker_average = new int[50];
+      int[] super_average = new int[50];
+      int[] total_average = new int[50];
+
+      for (int time=0; time<50; time++) {
 
         reset();
         main_scm();
 
-        maker_waste.add(maker.maker_totalwaste);
-        super_waste.add(superstock.stock_totalwaste + supershelf.shelf_totalwaste);
-        total_waste.add(maker.maker_totalwaste + superstock.stock_totalwaste + supershelf.shelf_totalwaste);
+        maker_average[time] = maker.maker_totalwaste;
+        super_average[time] = superstock.stock_totalwaste + supershelf.shelf_totalwaste;
+        total_average[time] = maker.maker_totalwaste + superstock.stock_totalwaste + supershelf.shelf_totalwaste;
       }
-      maker_wastes.add(maker_waste);
-      super_wastes.add(super_waste);
-      total_wastes.add(total_waste);
+
+      maker_waste.add(average(maker_average));
+      super_waste.add(average(super_average));
+      total_waste.add(average(total_average));
     }
 
-
-    makerwaste_file();
-    superwaste_file();
-    totalwaste_file();
+    maker_wastes.add(maker_waste);
+    super_wastes.add(super_waste);
+    total_wastes.add(total_waste);
   }
+
+
+  makerwaste_file();
+  superwaste_file();
+  totalwaste_file();
 
   println((millis()-ms) + "ms");
 
@@ -174,14 +187,16 @@ void main_scm() {
 
 void reset() {
   day = 1; 
-
-  maker.maker_totalwaste = 0; 
-  supershelf.shelf_totalwaste = 0; 
-  superstock.stock_totalwaste = 0; 
+  maker.reset();
+  supermarket.reset();
+  supershelf.reset();
+  superstock.reset();
 
   buy.clear(); 
   maker_list.clear(); 
   super_list.clear(); 
+  stock_list.clear();
+  shelf_list.clear();
   customer_list.clear(); 
 
   milkstock.clear(); 
@@ -191,6 +206,20 @@ void reset() {
   supershelf.clear(); 
   makertrack.clear(); 
   supertrack.clear();
+
+  //maker_waste.clear();
+  //super_waste.clear();
+  //total_waste.clear();
+}
+
+
+float average(int[] waste) {
+  float ave = 0.0;
+  for (int i=0; i<waste.length; i++) {
+    ave += waste[i];
+  }
+
+  return ave / waste.length;
 }
 
 void makerwaste_file() {
@@ -199,19 +228,14 @@ void makerwaste_file() {
     //PrintWriter file = new PrintWriter(new FileWriter(new File("/Users/inouemiyu/Desktop/milk_scm/scm_" + month() + "_" + day() +"/waste/maker_waste.csv"), true));
     PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\milk_scm\\scm_"+ month() + "_" + day() +"\\waste\\maker_waste.csv"), true)); 
 
-    file.print(timemaker); 
-    file.print(","); 
 
     for (int i=0; i<maker_wastes.size(); i++) {
       for (int j=0; j<maker_wastes.get(i).size(); j++) {
         file.print(maker_wastes.get(i).get(j)); 
         file.print(",");
       }
-      file.print(",");
+      file.println(",");
     }
-
-    timemaker++; 
-
 
     file.println(""); 
 
@@ -228,19 +252,13 @@ void superwaste_file() {
     //PrintWriter file = new PrintWriter(new FileWriter(new File("//Users/inouemiyu/Desktop/milk_scm/scm_" + month() + "_" + day() +"/waste/super_waste.csv"), true));
     PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\milk_scm\\scm_"+ month() + "_" + day() +"\\waste\\super_waste.csv"), true)); 
 
-    file.print(timesuper); 
-    file.print(","); 
-
     for (int i=0; i<super_wastes.size(); i++) {
       for (int j=0; j<super_wastes.get(i).size(); j++) {
         file.print(super_wastes.get(i).get(j)); 
         file.print(",");
       }
-      file.print(",");
+      file.println(",");
     }
-
-    timesuper++; 
-
     file.println(""); 
 
     file.close();
@@ -256,19 +274,13 @@ void totalwaste_file() {
     PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\milk_scm\\scm_"+ month() + "_" + day() +"\\waste\\total_waste.csv"), true)); 
     //PrintWriter file = new PrintWriter(new FileWriter(new File("/Users/inouemiyu/Desktop/milk_scm/scm_" + month() + "_" + day() +"/waste/total_waste.csv"), true));
 
-    file.print(timetotal); 
-    file.print(","); 
-
     for (int i=0; i<total_wastes.size(); i++) {
       for (int j=0; j<total_wastes.get(i).size(); j++) {
         file.print(total_wastes.get(i).get(j)); 
         file.print(",");
       }
-      file.print(",");
+      file.println(",");
     }
-
-    timetotal++; 
-
 
     file.println(""); 
 

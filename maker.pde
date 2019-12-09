@@ -1,10 +1,13 @@
 class Maker extends ArrayList <Milkstock> {
   IntList demand = new IntList();
 
-  int ordernum;
+  int ordernum = 0;
   int shipment;
+  int total_shipment = 0;
   int production_volume = 0;
+  int total_production_volume = 0;
   int maker_loss;
+  int total_maker_loss = 0;
   float standard_deviation = 0;
   float demand_forecast = 0;
   float safety_factor = 1.65;
@@ -31,6 +34,13 @@ class Maker extends ArrayList <Milkstock> {
     for (int i=0; i < this.size(); i++) {
       this.get(i).daychange();
     }
+  }
+
+  void reset() {
+    total_shipment = 0;
+    total_production_volume = 0;
+    total_maker_loss = 0;
+    maker_totalwaste = 0;
   }
 
   //需要予測して生産量決定
@@ -89,6 +99,8 @@ class Maker extends ArrayList <Milkstock> {
   void newstock() {
     this.add(new Milkstock());
     this.get(this.size()-1).makemilk(production_volume);
+
+    total_production_volume += production_volume;
   }
 
   //生産量q
@@ -124,22 +136,11 @@ class Maker extends ArrayList <Milkstock> {
       }
       if (num<=0) break;
     }
-
     maker_loss = num;
+
+    total_shipment += shipment;
+    total_maker_loss += maker_loss;
   }
-
-  ////在庫の牛乳が何番目からか
-  //int stock() {
-  //  int exp = this.size();
-
-  //  for (int i=0; i<this.size(); i++) {
-  //    if (this.get(i).expiration >= delivery_deadline) {
-  //      exp = i;
-  //      break;
-  //    }
-  //  }
-  //  return exp;
-  //}
 
   //納品期限を過ぎた牛乳を廃棄する
   void waste() {
@@ -177,17 +178,20 @@ class Maker extends ArrayList <Milkstock> {
     list.add((int)this.standard_deviation);//標準偏差
     list.add(this.saftystock_maker);//安全在庫
     list.add(this.production_volume);//生産量
+    list.add(this.total_production_volume);//総生産量
     list.add(this.shipment);//出荷量
+    list.add(this.total_shipment);//総出荷量
     list.add(this.maker_loss);//機会損失
+    list.add(this.total_maker_loss);//総機会損失
     list.add(this.maker_waste);//廃棄量
     list.add(this.maker_totalwaste);//総廃棄量
 
     maker_list.add(list);
   }
 
-  void addfile() {
+  void newfile() {
     try {
-      //PrintWriter file = new PrintWriter(new FileWriter(new File("/Users/inouemiyu/Desktop/milk_scm/scm_" + month() + "_" + day() +"/maker/maker_"+freshness+"_"+price+".csv"),true));
+      //PrintWriter file = new PrintWriter(new FileWriter(new File("/Users/inouemiyu/Desktop/milk_scm/scm_" + month() + "_" + day() +"/maker/maker_"+freshness+"_"+price+".csv")));
       PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\milk_scm\\scm_"+ month() + "_" + day() +"\\maker\\maker_"+freshness+"_"+price+".csv"), true));
 
       file.println("");
@@ -196,8 +200,8 @@ class Maker extends ArrayList <Milkstock> {
       file.print(",");
 
       //maker
-      file.print("syoumikigenn");//14～10日//期末在庫なので次の日に処理が行われる
       for (int i=14; i>(delivery_deadline-1); i--) {
+        file.print(i + "niti");
         file.print(",");
       }
       file.print("zyutyuu");
@@ -208,25 +212,36 @@ class Maker extends ArrayList <Milkstock> {
       file.print(",");
       file.print("annzennzaiko");
       file.print(",");
-      file.print("seisann-ryo");
+      file.print("seisannyoteiryo");
       file.print(",");
-      file.print("syuxtuka-ryo");
+      file.print("totalseisannryo");
+      file.print(",");
+      file.print("syuxtukaryo");
+      file.print(",");
+      file.print("totalsyuxtukaryo");
       file.print(",");
       file.print("kikaisonnsitsu");
       file.print(",");
-      file.print("haiki-ryo");
+      file.print("totalkikaisonnsitsu");
       file.print(",");
-      file.print("total-haiki-ryo");
+      file.print("haikiryo");
+      file.print(",");
+      file.print("totalhaikiryo");
       file.print(",");
       file.println("");
 
-      for (int i=14; i>(delivery_deadline-1); i--) {
-        file.print(",");
-        file.print(i + "niti");
-      }
-      file.println("");
+      file.close();
+    }
+    catch (IOException e) {
+      println(e);
+      e.printStackTrace();
+    }
+  }
 
-
+  void addfile() {
+    try {
+      //PrintWriter file = new PrintWriter(new FileWriter(new File("/Users/inouemiyu/Desktop/milk_scm/scm_" + month() + "_" + day() +"/maker/maker_"+freshness+"_"+price+".csv"), true));
+      PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\milk_scm\\scm_"+ month() + "_" + day() +"\\maker\\maker_"+freshness+"_"+price+".csv"), true));
 
       for (int i=0; i<maker_list.size(); i++) {
         for (int j=0; j<maker_list.get(i).size(); j++) {
@@ -235,8 +250,6 @@ class Maker extends ArrayList <Milkstock> {
         }
         file.println("");
       }
-
-      file.println("");
 
       file.close();
     }

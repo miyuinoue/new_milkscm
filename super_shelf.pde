@@ -1,8 +1,10 @@
 class Supershelf extends ArrayList <Milkstock> {
   int restocknum;
-    int notbuy;
+  int notbuy;
   int sales_loss = 0;
+  int total_sales_loss = 0;
   int sales_num = 0;
+  int total_sales_num = 0;
   int visitors = 0;
   int shelf_waste;
   int shelf_totalwaste = 0;
@@ -19,6 +21,12 @@ class Supershelf extends ArrayList <Milkstock> {
     sales_num = 0;
     sales_loss = 0;
     this.notbuy = 0;
+  }
+  
+  void reset() {
+    total_sales_loss = 0;
+    total_sales_num = 0;
+    shelf_totalwaste = 0;
   }
 
   //在庫量
@@ -37,30 +45,6 @@ class Supershelf extends ArrayList <Milkstock> {
   int restock() {
     return shelf_capacity - this.inventory();
   }
-
-  ////在庫の牛乳が何番目からか
-  //int stock() {
-  //  int exp = this.size();
-
-  //  for (int i=0; i<this.size(); i++) {
-  //    //if (this.get(i).size() == 0)continue;
-
-  //    if (this.get(i).expiration >= sales_deadline) {
-  //      exp = i;
-  //      break;
-  //    }
-  //  }
-  //  //if (exp == this.size()) {
-  //  //  println("");
-  //  //} else if (this.get(exp).expiration == 5) {
-  //  //  for (int i=exp; i<this.size(); i++) {
-  //  //    if (this.get(i).expiration < 5)println("exp:" + this.get(i).expiration);
-  //  //  }
-  //  //}
-
-  //  return exp;
-  //}
-
 
   //前期に足らなかった牛乳を補充する
   void unloading(SuperTrack supertrack) {      
@@ -120,7 +104,8 @@ class Supershelf extends ArrayList <Milkstock> {
     int count = 0 ;
 
     //for (int i=this.stock(); i<this.size(); i++) {
-    loop: for (int i=0; i<this.size(); i++) {
+  loop: 
+    for (int i=0; i<this.size(); i++) {
       if (this.get(i).expiration < sales_deadline)continue;
 
       for (int j=0; j<this.get(i).size(); j++) {
@@ -146,9 +131,9 @@ class Supershelf extends ArrayList <Milkstock> {
       select_milk[1] = -1;
       this.notbuy++;
     }
-
-    //println(this.sales_num);
-
+    
+    total_sales_num += sales_num;
+    total_sales_loss +=sales_loss;
     return select_milk;
   }
 
@@ -203,7 +188,9 @@ class Supershelf extends ArrayList <Milkstock> {
     }
     list.add(customer.customertotal);//総来客数
     list.add(this.sales_num);//販売数
+    list.add(this.total_sales_num);//総販売数
     list.add(this.sales_loss);//機会損失
+    list.add(this.total_sales_loss);//総機会損失
     list.add(this.notbuy);//買わない
     list.add(this.shelf_waste);//廃棄量
     list.add(this.shelf_totalwaste);//総廃棄量
