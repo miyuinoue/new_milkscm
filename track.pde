@@ -10,7 +10,7 @@ class Track extends ArrayList <Milkstock> {
     }
   }
 
-  void maker_addtrack(Milk milk) {//milkには賞味期限があるけどmilkstockには賞味期限がついてない
+  void maker_addtrack(Milk milk) {
     for(int i=0; i<this.size(); i++){
       if(this.get(i).expiration == milk.expiration)this.get(i).add(milk);
     }

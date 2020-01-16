@@ -34,6 +34,8 @@ class Milkstock extends ArrayList <Milk> {
     if (this.expiration == num) {  
       //廃棄の牛乳は１
       this.waste = 1;
+      
+      //if(this.expiration > 5)println("day:" + day + "  milkstockwaste:" + this.expiration + "日");//println
       for (int i=0; i<this.size(); i++) {
         this.get(i).waste();
       }

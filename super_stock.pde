@@ -33,6 +33,9 @@ class Superstock extends ArrayList <Milkstock> {
     for (int j=0; j<makertrack.get(i).size(); j++) {    
       if (makertrack.get(i).get(j).size() == 0)continue;
 
+      //if (makertrack.get(i).get(j).expiration < 5)println("day:" + day + "  makertrack:" + makertrack.get(i).get(j).expiration + "日");//println
+
+
       //スーパーの倉庫が空の場合
       if (this.size() == 0 ) {
         this.add((Milkstock)makertrack.get(i).get(j).clone());
@@ -54,14 +57,18 @@ class Superstock extends ArrayList <Milkstock> {
           this.get(k).addAll((Milkstock)makertrack.get(i).get(j).clone());
           this.get(k).price(milk_price(this.get(k).expiration));
           delivery += makertrack.get(i).get(j).size();
+
+          //if (this.get(k).expiration < 1)println("day:" + day + "  superdelivery1:" + this.get(k).expiration + "日");//println
         }
       }
 
-      //納品された牛乳の賞味期限日数と同じ牛乳がstockにない場合 or スーパーの倉庫が空の場合
+      //納品された牛乳の賞味期限日数と同じ牛乳がstockにない場合
       if (noExpiration == true) {
         this.add((Milkstock)makertrack.get(i).get(j).clone());
         this.get(this.size()-1).price(milk_price(this.get(this.size()-1).expiration));
         delivery += makertrack.get(i).get(j).size();
+
+          //if (this.get(this.size()-1).expiration < 1)println("day:" + day + "  superdelivery2:" + this.get(this.size()-1).expiration + "日");//println
       }
     }
 
@@ -77,7 +84,6 @@ class Superstock extends ArrayList <Milkstock> {
     supertrack.add(new Track(14-sales_deadline+1));
 
     int carry;
-    //for (int i=this.stock(); i<this.size(); i++) {
     for (int i=0; i<this.size(); i++) {
       if (this.get(i).expiration < sales_deadline)continue;
 
@@ -85,7 +91,10 @@ class Superstock extends ArrayList <Milkstock> {
       s -= carry;
 
       for (int j=0; j<carry; j++) {
-        supertrack.addtrack(this.get(i).remove(0));
+        //if(j==0){
+        //  if(this.get(i).expiration < 1)println("day:" + day + "  loading:" + this.get(i).expiration + "日");//println
+        //}
+        supertrack.addtrack(this.get(i).remove(0));        
         loadingnum++;
       }
       if (s <= 0) break;
@@ -99,7 +108,6 @@ class Superstock extends ArrayList <Milkstock> {
   //販売期限を過ぎた牛乳を廃棄する
   void waste() {
     stock_waste = 0;
-    //for (int i=this.stock(); i<this.size(); i++) {
     for (int i=0; i<this.size(); i++) {
       if (this.get(i).expiration < sales_deadline)continue;
       stock_waste += this.get(i).waste(sales_deadline);
@@ -108,16 +116,15 @@ class Superstock extends ArrayList <Milkstock> {
     stock_totalwaste += stock_waste;
   }
 
-  //値段の設定（今は一律150円）
+  //値段の設定（今は一律kakaku円）
   int milk_price(int r) {
     int num = E - r;
     //return (150-5*num);
-    return 150;
+    return kakaku;
   }
 
-  //賞味期限が残り3日になったら3割引きする
-  void discount3(int d) {
-    //for (int i=stock(); i<this.size(); i++) {
+  //賞味期限が残り3日になったら2割引きする
+  void discount2(int d) {
     for (int i=0; i<this.size(); i++) {
       if (this.get(i).expiration < sales_deadline)continue;
 

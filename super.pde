@@ -1,5 +1,6 @@
 class Supermarket {
   IntList demand = new IntList();
+  int section = 7;//移動平均期間
 
   int order_quantity = 0;
   int total_order_quantity = 0;
@@ -15,7 +16,7 @@ class Supermarket {
 
   void super_first() {
     this.demand.clear();
-    for (int i=0; i<7; i++) {
+    for (int i=0; i<this.section; i++) {
       this.demand.append(100);
     }
   }
@@ -25,62 +26,101 @@ class Supermarket {
   }
 
   //需要予測して発注量決定
-  int super_appdate(int inv, Supershelf supershelf) {
+  int super_appdate(int inv, int salesnum) {
+    //int super_appdate(int inv, int customernum) {
     this.demand.remove(0);
-    this.demand.append(supershelf.sales_num);
+    this.demand.append(salesnum);//スーパーに来店する人はみんな牛乳を買いたいと思っている人たち
 
     this.demand_forecast();
     this.standard_deviation();
     this.safty_stock();
 
-    return order(inv, supershelf);//発注数計算
+    //return order(inv, supershelf);//発注数計算
+    return order(inv);//発注数計算
   }
 
   void demand_forecast() {
     float sum = 0;
-    for (int i=0; i<7; i++) {
+    for (int i=0; i<this.section; i++) {
       sum += this.demand.get(i);
     }
-    this.demand_forecast = sum/7;
+    this.demand_forecast = sum/this.section;
   }
 
   void standard_deviation() {
     float var=0;
-    for (int i=0; i<7; i++) {
+    for (int i=0; i<this.section; i++) {
       var+=(this.demand.get(i) - this.demand_forecast)*(this.demand.get(i) - this.demand_forecast);
     }
-    this.standard_deviation = (float)Math.sqrt(var/(7-1));
+    this.standard_deviation = (float)Math.sqrt(var/(this.section-1));
   }
 
   void safty_stock() {
     saftystock_super = (int)Math.ceil(this.safety_factor * this.standard_deviation * Math.sqrt(this.leadtime +this.ordercycle));
   }
 
-  //発注量o
-  int order(int inv, Supershelf supershelf) {
-    int capa = 0;
-    int inv_sum = 0;
-    int inv_plus = 0;
+  //  //発注量o
+  //int order(int inv) {
+  //  order_quantity = (shelf_capacity + stock_capacity) - inv;
+  //  total_order_quantity += order_quantity;
 
-    //在庫は常に最低でも50個持っている状態にしたい//50でいいの？
-    if (inv >= shelf_capacity) {
-      inv_sum = inv - shelf_capacity;
+  //  return order_quantity;
+  //}
+
+  ////発注量o
+  ////int order(int inv, Supershelf supershelf) {
+  //int order(int inv) {
+  //  int capa = 0;
+  //  int inv_plus = 0;
+  //  int inv_minus = 0;
+
+  //  //在庫は常に最低でも50個持っている状態にしたい//50でいいの？
+  //  if (inv >= shelf_capacity) {
+  //    inv_plus = inv - shelf_capacity;
+  //  } else {
+  //    inv_minus = shelf_capacity - inv;
+  //  }
+
+  //  order_quantity = (int)ceil((this.leadtime + this.ordercycle) * this.demand_forecast - inv_plus + saftystock_super) + inv_minus;//発注量計算
+  //  //order_quantity = (int)ceil((this.leadtime + this.ordercycle) * this.demand_forecast - inv + saftystock_super)+ shelf_capacity;//発注量計算
+
+  //  if (order_quantity < 0)order_quantity = 0;//発注量<0の時は0
+
+  //  //order_quantity = order_quantity + (inv_plus + supershelf.sales_loss);//既に在庫が50個以下だったら不足分も追加で発注する, 機会損失分も追加で発注する
+
+  //  //空き容量との比較
+  //  capa = (shelf_capacity + stock_capacity) - inv;//150-在庫
+  //  if (capa < order_quantity)order_quantity = capa;
+
+  //  //order_quantity = (shelf_capacity + stock_capacity) - inv;
+
+  //  total_order_quantity += order_quantity;
+
+  //  return order_quantity;
+  //}
+
+  //発注量o
+  int order(int inv) {
+    int capa = 0;
+    int inv_plus = 0;
+    int inv_minus = 0;
+    int num = shelf_capacity + 50;
+
+    //在庫は常に最低でも100個持っている状態にしたい//棚出し3回分は，保持しておきたい
+    if (inv >= num) {
+      inv_plus = inv - num;
     } else {
-      inv_plus = shelf_capacity - inv;
+      inv_minus = num - inv;
     }
 
-    order_quantity = (int)ceil((this.leadtime + this.ordercycle) * this.demand_forecast - inv_sum + saftystock_super);//発注量計算
-
+    order_quantity = (int)ceil((this.leadtime + this.ordercycle) * this.demand_forecast - inv_plus + saftystock_super) + inv_minus;//発注量計算
     if (order_quantity < 0)order_quantity = 0;//発注量<0の時は0
 
-    order_quantity = order_quantity + (inv_plus + supershelf.sales_loss);//既に在庫が50個以下だったら不足分も追加で発注する, 機会損失分も追加で発注する
-
     //空き容量との比較
-    capa = (shelf_capacity + stock_capacity) - inv;//150-在庫
+    capa = (shelf_capacity + stock_capacity) - inv;//200-在庫
     if (capa < order_quantity)order_quantity = capa;
 
     total_order_quantity += order_quantity;
-
     return order_quantity;
   }
 
@@ -89,23 +129,35 @@ class Supermarket {
     int stockinv = 0;
     int shelfinv = 0;
 
-    //for (int i=superstock.stock(); i<superstock.size(); i++) {
+    int s=0;
+
     for (int i=0; i<superstock.size(); i++) {
-      if (superstock.get(i).expiration < sales_deadline)continue;
+      if (superstock.get(i).expiration == sales_deadline)s+=superstock.get(i).size();
 
-      if (superstock.get(i).expiration == sales_deadline)continue;
+      if (superstock.get(i).expiration <= sales_deadline)continue;
       stockinv += superstock.get(i).size();
+      //if (superstock.get(i).expiration <= 1)println("day:" + day + "  stockinv:" + superstock.get(i).expiration + "日");//println
     }
 
-    //for (int i=supershelf.stock(); i<supershelf.size(); i++) {
     for (int i=0; i<supershelf.size(); i++) {
-      if (supershelf.get(i).expiration < sales_deadline)continue;
+      if (supershelf.get(i).expiration == sales_deadline)s+=supershelf.get(i).size();
 
-      if (supershelf.get(i).expiration == sales_deadline)continue;
+      if (supershelf.get(i).expiration <= sales_deadline)continue;
       shelfinv += supershelf.get(i).size();
+
+      //if (supershelf.get(i).expiration <= 1)println("day:" + day + "  shelfinv:" + supershelf.get(i).expiration + "日");//println
     }
+
 
     return (stockinv + shelfinv);
+  }
+
+  float loss_ritsu(int stockwaste, int shelfwaste) {
+    float uriage = kakaku * supershelf.total_sales_num;
+    float losskinngaku = kakaku * (stockwaste + shelfwaste) + supershelf.waribiki_profit;
+
+    float lossritsu = losskinngaku/uriage * 100;
+    return lossritsu;
   }
 
 
@@ -124,8 +176,19 @@ class Supermarket {
 
   void newfile() {
     try {
-      //PrintWriter file = new PrintWriter(new FileWriter(new File("/Users/inouemiyu/Desktop/milk_scm/scm_" + month() + "_" + day() +"/super/super_"+freshness+"_"+price+".csv")));
-      PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\milk_scm\\scm_"+ month() + "_" + day() +"\\super\\super_"+freshness+"_"+price+".csv"), true));
+      //PrintWriter file = new PrintWriter(new FileWriter(new File("/Users/inouemiyu/Desktop/milk_scm/scm_" + month() + "_" + day() +"/"+sales_deadline+"_"+delivery_deadline+"/super/super"+beta_f+"_"+beta_p+".csv")));
+      PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\卒研\\milk_scm\\scm_"+ month() + "_" + day() +"\\"+sales_deadline+"_"+delivery_deadline+"super\\super"+beta_f+"_"+beta_p+".csv"), true));//！！！
+
+      file.println("");
+      file.print("freshness");      
+      file.print(",");
+      file.print(freshness);
+      file.println("");
+      file.print("price");      
+      file.print(",");
+      file.print(price);
+      file.println("");
+      file.println("");
 
       file.print("day"); 
       file.print(",");
@@ -204,8 +267,8 @@ class Supermarket {
 
   void addfile() {
     try {
-      //PrintWriter file = new PrintWriter(new FileWriter(new File("/Users/inouemiyu/Desktop/milk_scm/scm_" + month() + "_" + day() +"/super/super_"+freshness+"_"+price+".csv"), true));
-      PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\milk_scm\\scm_"+ month() + "_" + day() +"\\super\\super_"+freshness+"_"+price+".csv"), true));
+      //PrintWriter file = new PrintWriter(new FileWriter(new File("/Users/inouemiyu/Desktop/milk_scm/scm_" + month() + "_" + day() +"/"+sales_deadline+"_"+delivery_deadline+"/super/super"+beta_f+"_"+beta_p+".csv"), true));
+      PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\卒研\\milk_scm\\scm_"+ month() + "_" + day() +"\\"+sales_deadline+"_"+delivery_deadline+"super\\super"+beta_f+"_"+beta_p+".csv"), true));//！！！
 
       for (int i=0; i<super_list.size(); i++) {
         for (int j=0; j<super_list.get(i).size(); j++) {
