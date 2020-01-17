@@ -141,7 +141,7 @@ class Supershelf extends ArrayList <Milkstock> {
     prob[0] = Math.exp(num);    
     sum += Math.exp(num);//効用の合計値
 
-    num = customer.normalization(8, kakaku);//一番効用が小さい場所//！！！
+    num = customer.normalization(kawanai, kakaku);//買わない基準となる日にちと価格//！！！
     prob[1] = Math.exp(num);    
     sum += Math.exp(num);//効用の合計値
 

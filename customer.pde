@@ -2,7 +2,7 @@ class Customer {
   IntList customernum = new IntList();
   int customerave = 30;
   float[] circulation = {1.11, 0.96, 0.96, 0.96, 0.96, 0.96, 1.11};
-  float[] season = {0.97, 0.93, 0.96, 0.96, 1.05, 1.04, 1.02, 0.97, 1.06, 1.08, 1.00, 0.96};
+  float[] season = {1.00, 0.97, 0.93, 0.96, 0.96, 1.05, 1.04, 1.02, 0.97, 1.06, 1.08, 1.00, 0.96};
   float sigma = 0.1;
 
   // float Ac = 0.58;
@@ -74,7 +74,7 @@ class Customer {
   int customer_num(int d) {
     float c = circulation[(int)d%7];//循環変動
     float s;//季節変動
-    if ((int)day/30 == 12)s = season[11];
+    if ((int)day/30 == 13)s = season[12];
     else s = season[(int)day/30];   
     float irregular = 0 + randomGaussian() * customerave * sigma;//不規則変動
 
@@ -200,7 +200,7 @@ class Customer {
   void customer_list(Supershelf supershelf) {
     ArrayList<Integer> list = new ArrayList<Integer>();
 
-    list.add(day);//日にち
+    list.add(day-30);//日にち
     list.add(this.customertotal);//来店数
     //選択回数
     list.add(supershelf.notbuy);//買わない
@@ -217,7 +217,7 @@ class Customer {
 
   void newfile() {
     try {
-      PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\卒研\\milk_scm\\scm_"+ month() + "_" + day() +"\\"+sales_deadline+"_"+delivery_deadline+"customer\\customer"+beta_f+"_"+beta_p+".csv")));//！！！
+      PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\卒研\\milk_scm\\scm_"+ month() + "_" + day() +"\\"+sales_deadline+"_"+delivery_deadline+"\\customer\\customer"+beta_f+"_"+beta_p+".csv")));//！！！
       //PrintWriter file = new PrintWriter(new FileWriter(new File("/Users/inouemiyu/Desktop/milk_scm/scm_" + month() + "_" + day() +"/"+sales_deadline+"_"+delivery_deadline+"/customer/customer"+beta_f+"_"+beta_p+".csv")));
 
       file.println("");
@@ -272,7 +272,7 @@ class Customer {
 
   void addfile() {
     try {
-      PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\卒研\\milk_scm\\scm_"+ month() + "_" + day() +"\\"+sales_deadline+"_"+delivery_deadline+"customer\\customer"+beta_f+"_"+beta_p+".csv"), true));//！！！
+      PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\卒研\\milk_scm\\scm_"+ month() + "_" + day() +"\\"+sales_deadline+"_"+delivery_deadline+"\\customer\\customer"+beta_f+"_"+beta_p+".csv"), true));//！！！
       //PrintWriter file = new PrintWriter(new FileWriter(new File("/Users/inouemiyu/Desktop/milk_scm/scm_" + month() + "_" + day() +"/"+sales_deadline+"_"+delivery_deadline+"/customer/customer"+beta_f+"_"+beta_p+".csv"), true));
 
       for (int i=0; i<customer_list.size(); i++) {

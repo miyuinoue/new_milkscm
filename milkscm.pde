@@ -17,15 +17,15 @@ Customer customer;
 
 
 int day = 1;
-int span = 365;
+int span = 395;
 int T = 3; //倉庫から商品棚への品出し期間の総数
 int E = 14; //賞味期限の最大日数
 
-int kakaku = 214;
+int kakaku = 216;
 //float waribiki = 0.7;
 
-int sales_deadline = 5; //！！！
-int delivery_deadline = 10; //！！！
+int sales_deadline; //！！！
+int delivery_deadline; //！！！
 int shelf_capacity = 100;//在庫容量
 int stock_capacity = 100;
 int maker_capacity = 300;
@@ -45,6 +45,8 @@ float fmin = 6.133966;
 float mmax = 14.8;
 float mmin = 11.23599;
 
+int kawanai;
+
 int order = 0;
 
 int timemaker = 1;
@@ -62,8 +64,16 @@ ArrayList<ArrayList<Float>> maker_wastes = new ArrayList<ArrayList<Float>>();
 ArrayList<ArrayList<Float>> super_wastes = new ArrayList<ArrayList<Float>>();
 ArrayList<ArrayList<Float>> total_wastes = new ArrayList<ArrayList<Float>>();
 
-ArrayList<ArrayList<Float>> maker_wastesloss = new ArrayList<ArrayList<Float>>();
-ArrayList<ArrayList<Float>> super_wastesloss = new ArrayList<ArrayList<Float>>();
+ArrayList<ArrayList<Float>> maker_deliveris = new ArrayList<ArrayList<Float>>();
+ArrayList<ArrayList<Float>> super_deliveris = new ArrayList<ArrayList<Float>>();
+ArrayList<ArrayList<Float>> total_deliveris = new ArrayList<ArrayList<Float>>();
+
+ArrayList<ArrayList<Float>> maker_probs = new ArrayList<ArrayList<Float>>();
+ArrayList<ArrayList<Float>> super_probs = new ArrayList<ArrayList<Float>>();
+ArrayList<ArrayList<Float>> total_probs = new ArrayList<ArrayList<Float>>();
+
+//ArrayList<ArrayList<Float>> maker_wastesloss = new ArrayList<ArrayList<Float>>();
+//ArrayList<ArrayList<Float>> super_wastesloss = new ArrayList<ArrayList<Float>>();
 
 
 
@@ -83,6 +93,10 @@ void draw() {
   int ms = millis();
 
   customer.fresh_price();//正規化するための賞味期限と価格のリストの作成
+
+  beta_p = 0;
+  price = customer.satisfaction(beta_p, mmax, mmin);
+
 
 
   for (int a=0; a<4; a++) {
@@ -105,67 +119,108 @@ void draw() {
       break;
     }
 
+    ////効用freshness
+    //for (int i=0; i<= 100; i+=10) {
+    //beta_f = i;
+    //freshness = customer.satisfaction(beta_f, fmax, fmin);
 
-    //効用freshness
-    for (int i=0; i<= 100; i+=10) {
-      beta_f = i;
-      freshness = customer.satisfaction(beta_f, fmax, fmin);
+    //買わないの基準
+    for (int i=0; i<=E; i++) {
+      kawanai = i;
 
       ArrayList<Float> maker_waste = new ArrayList<Float>();
       ArrayList<Float> super_waste = new ArrayList<Float>();
       ArrayList<Float> total_waste = new ArrayList<Float>();
 
-      ArrayList<Float> maker_wasteloss = new ArrayList<Float>();
-      ArrayList<Float> super_wasteloss = new ArrayList<Float>();
+      ArrayList<Float> maker_delivery = new ArrayList<Float>();
+      ArrayList<Float> super_delivery = new ArrayList<Float>();
+      ArrayList<Float> total_delivery = new ArrayList<Float>();
+
+      ArrayList<Float> maker_prob = new ArrayList<Float>();
+      ArrayList<Float> super_prob = new ArrayList<Float>();
+      ArrayList<Float> total_prob = new ArrayList<Float>();
+
+      //ArrayList<Float> maker_wasteloss = new ArrayList<Float>();
+      //ArrayList<Float> super_wasteloss = new ArrayList<Float>();
 
       //効用money
       for (int j=0; j<=100; j+=10) {
-        beta_p = j;
-        price = customer.satisfaction(beta_p, mmax, mmin);
+        beta_f = j;
+        freshness = customer.satisfaction(beta_f, fmax, fmin);
 
         maker.newfile();
         supermarket.newfile();
         customer.newfile();
 
-        int[] maker_average = new int[5];
-        int[] super_average = new int[5];
-        int[] total_average = new int[5];
-        //int[] maker_average = new int[10];
-        //int[] super_average = new int[10];
-        //int[] total_average = new int[10];
+        int[] maker_waste_ave = new int[50];
+        int[] super_waste_ave = new int[50];
+        int[] total_waste_ave = new int[50];
 
-        float[] maker_lossaverage = new float[5];
-        float[] super_lossaverage = new float[5];
+        int[] maker_delivery_ave = new int[50];
+        int[] super_delivery_ave = new int[50];
+        int[] total_delivery_ave = new int[50];
+
+        //float[] maker_lossaverage = new float[5];
+        //float[] super_lossaverage = new float[5];
         //float[] total_lossaverage = new float[1];
 
-        for (int time=0; time<5; time++) {
+        for (int time=0; time<50; time++) {
           reset();
           main_scm();
 
-          maker_average[time] = maker.maker_totalwaste;
-          super_average[time] = superstock.stock_totalwaste + supershelf.shelf_totalwaste;
-          total_average[time] = maker.maker_totalwaste + superstock.stock_totalwaste + supershelf.shelf_totalwaste;
+          maker_waste_ave[time] = maker.maker_totalwaste;
+          super_waste_ave[time] = superstock.stock_totalwaste + supershelf.shelf_totalwaste;
+          total_waste_ave[time] = maker.maker_totalwaste + superstock.stock_totalwaste + supershelf.shelf_totalwaste;
 
-          maker_lossaverage[time] = maker.loss_ritsu();
-          super_lossaverage[time] = supermarket.loss_ritsu(superstock.stock_totalwaste, supershelf.shelf_totalwaste);
-          //total_average[time] = maker.maker_totalwaste + superstock.stock_totalwaste + supershelf.shelf_totalwaste;
+          maker_delivery_ave[time] = maker.total_production_volume;
+          super_delivery_ave[time] = superstock.total_delivery;
+          total_delivery_ave[time] = maker.total_production_volume + superstock.total_delivery;
+
+          //maker_lossaverage[time] = maker.loss_ritsu();
+          //super_lossaverage[time] = supermarket.loss_ritsu(superstock.stock_totalwaste, supershelf.shelf_totalwaste);
+          //total_waste_ave[time] = maker.maker_totalwaste + superstock.stock_totalwaste + supershelf.shelf_totalwaste;
         }
 
-        maker_waste.add(average(maker_average));
-        super_waste.add(average(super_average));
-        total_waste.add(average(total_average));
+        float mwaste = average(maker_waste_ave);
+        float swaste = average(super_waste_ave);
+        float twaste = average(total_waste_ave);
 
-        maker_wasteloss.add(lossaverage(maker_lossaverage));
-        super_wasteloss.add(lossaverage(super_lossaverage));
-        //total_waste.add(average(total_average));
+        float mdelivery = average(maker_delivery_ave);
+        float sdelivery = average(super_delivery_ave);
+        float tdelivery = average(total_delivery_ave);
+
+        maker_waste.add(mwaste);
+        super_waste.add(swaste);
+        total_waste.add(twaste);
+
+        maker_delivery.add(mdelivery);
+        super_delivery.add(sdelivery);
+        total_delivery.add(tdelivery);
+
+        maker_prob.add((mwaste / mdelivery) *100);
+        super_prob.add((swaste / sdelivery) *100);
+        total_prob.add((twaste / tdelivery) *100);
+
+        //maker_wasteloss.add(lossaverage(maker_lossaverage));
+        //super_wasteloss.add(lossaverage(super_lossaverage));
+        //total_waste.add(average(total_waste_ave));
       }
 
       maker_wastes.add(maker_waste);
       super_wastes.add(super_waste);
       total_wastes.add(total_waste);
 
-      maker_wastesloss.add(maker_wasteloss);
-      super_wastesloss.add(super_wasteloss);
+      maker_deliveris.add(maker_delivery);
+      super_deliveris.add(super_delivery);
+      total_deliveris.add(total_delivery);
+
+      maker_probs.add(maker_prob);
+      super_probs.add(super_prob);
+      total_probs.add(total_prob);
+
+
+      //maker_wastesloss.add(maker_wasteloss);
+      //super_wastesloss.add(super_wasteloss);
     }
 
 
@@ -187,6 +242,50 @@ void main_scm() {
       supermarket.super_first();
       customer.customer_first();//位置
     }
+
+    if (1 <= day && day <= 30) {
+      for (int t=1; t<=T; t++) {
+        if (t==1) {
+          maker.newstock(); //生産
+          maker.shipment(makertrack, this.order);//メーカから出荷
+          //makertrack.addfile();
+
+          superstock.delivery(makertrack); //スーパー倉庫に納品
+        }
+        superstock.loading(supertrack, supershelf.restock()); //倉庫の牛乳をトラックに積む
+        supershelf.unloading(supertrack); //トラックに入れた牛乳を商品棚に卸す（品出し）
+
+        customer.buy(supershelf); //販売
+
+        if (t==T) {
+          maker.maker_appdate(); //需要予測して明日の生産量決定
+
+          int inv = supermarket.inventory(superstock, supershelf);
+          //order = supermarket.super_appdate(inv, supershelf, customer); //需要予測して発注量決定
+          order = supermarket.super_appdate(inv, supershelf.sales_num); //需要予測して発注量決定
+
+          maker.waste(); //maker廃棄
+          superstock.waste(); //super廃棄
+          supershelf.waste(); //super廃棄
+        }
+      }
+
+      //日付の更新
+      maker.m_daychange();
+      superstock.stock_daychange();
+      supershelf.shelf_daychange();
+      customer.c_daychange();
+
+      maker.reset();
+      supermarket.reset();
+      supershelf.reset();
+      superstock.reset();
+      buy.clear();
+
+      day++;
+      continue;
+    }
+
 
     for (int t=1; t<=T; t++) {
       if (t==1) {
@@ -263,10 +362,6 @@ void reset() {
   supershelf.clear();
   makertrack.clear();
   supertrack.clear();
-
-  //maker_waste.clear();
-  //super_waste.clear();
-  //total_waste.clear();
 }
 
 
@@ -304,13 +399,26 @@ void makerwaste_file() {
       }
       file.println(",");
     }
-
-    file.print("メーカロス率");
     file.println(",");
 
-    for (int i=0; i<maker_wastesloss.size(); i++) {
-      for (int j=0; j<maker_wastesloss.get(i).size(); j++) {
-        file.print(maker_wastesloss.get(i).get(j));
+    file.print("メーカ納品量");
+    file.println(",");
+
+    for (int i=0; i<maker_deliveris.size(); i++) {
+      for (int j=0; j<maker_deliveris.get(i).size(); j++) {
+        file.print(maker_deliveris.get(i).get(j));
+        file.print(",");
+      }
+      file.println(",");
+    }
+    file.println(",");
+
+    file.print("メーカ廃棄率");
+    file.println(",");
+
+    for (int i=0; i<maker_probs.size(); i++) {
+      for (int j=0; j<maker_probs.get(i).size(); j++) {
+        file.print(maker_probs.get(i).get(j));
         file.print(",");
       }
       file.println(",");
@@ -329,7 +437,7 @@ void makerwaste_file() {
 void superwaste_file() {
   try {
     //PrintWriter file = new PrintWriter(new FileWriter(new File("//Users/inouemiyu/Desktop/milk_scm/scm_" + month() + "_" + day() +"/"+sales_deadline+"_"+delivery_deadline+"/waste/super_waste.csv"), true));
-    PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\卒研\\milk_scm\\scm_"+ month() + "_" + day() +"\\"+sales_deadline+"_"+delivery_deadline+"waste\\super_waste.csv"), true));//！！！
+    PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\卒研\\milk_scm\\scm_"+ month() + "_" + day() +"\\"+sales_deadline+"_"+delivery_deadline+"\\waste\\super_waste.csv"), true));//！！！
 
     file.print("スーパー廃棄量");
     file.println(",");
@@ -340,12 +448,26 @@ void superwaste_file() {
       }
       file.println(",");
     }
-
-    file.print("スーパーロス率");
     file.println(",");
-    for (int i=0; i<super_wastesloss.size(); i++) {
-      for (int j=0; j<super_wastesloss.get(i).size(); j++) {
-        file.print(super_wastesloss.get(i).get(j));
+
+    file.print("スーパー納品量");
+    file.println(",");
+
+    for (int i=0; i<super_deliveris.size(); i++) {
+      for (int j=0; j<super_deliveris.get(i).size(); j++) {
+        file.print(super_deliveris.get(i).get(j));
+        file.print(",");
+      }
+      file.println(",");
+    }
+    file.println(",");
+
+    file.print("スーパー廃棄率");
+    file.println(",");
+
+    for (int i=0; i<super_probs.size(); i++) {
+      for (int j=0; j<super_probs.get(i).size(); j++) {
+        file.print(super_probs.get(i).get(j));
         file.print(",");
       }
       file.println(",");
@@ -365,9 +487,36 @@ void totalwaste_file() {
     PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\卒研\\milk_scm\\scm_"+ month() + "_" + day() +"\\"+sales_deadline+"_"+delivery_deadline+"\\waste\\total_waste.csv"), true));//！！！
     //PrintWriter file = new PrintWriter(new FileWriter(new File("/Users/inouemiyu/Desktop/milk_scm/scm_" + month() + "_" + day() +"/"+sales_deadline+"_"+delivery_deadline+"/waste/total_waste.csv"), true));
 
+    file.print("総廃棄量");
+    file.println(",");
+
     for (int i=0; i<total_wastes.size(); i++) {
       for (int j=0; j<total_wastes.get(i).size(); j++) {
         file.print(total_wastes.get(i).get(j));
+        file.print(",");
+      }
+      file.println(",");
+    }
+    file.println(",");
+
+    file.print("総納品量");
+    file.println(",");
+
+    for (int i=0; i<total_deliveris.size(); i++) {
+      for (int j=0; j<total_deliveris.get(i).size(); j++) {
+        file.print(total_deliveris.get(i).get(j));
+        file.print(",");
+      }
+      file.println(",");
+    }
+    file.println(",");
+
+    file.print("総廃棄率");
+    file.println(",");
+
+    for (int i=0; i<total_probs.size(); i++) {
+      for (int j=0; j<total_probs.get(i).size(); j++) {
+        file.print(total_probs.get(i).get(j));
         file.print(",");
       }
       file.println(",");
