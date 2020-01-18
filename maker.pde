@@ -164,7 +164,7 @@ class Maker extends ArrayList <Milkstock> {
   void maker_list() {
     ArrayList<Integer> list = new ArrayList<Integer>();
 
-    list.add(day-30);//日にち
+    list.add(day-60);//日にち
     //賞味期限14日～10日ごとの在庫量
     for (int i=14; i>= delivery_deadline; i--) {
       boolean m = false;
@@ -198,7 +198,7 @@ class Maker extends ArrayList <Milkstock> {
   void newfile() {
     try {
       //PrintWriter file = new PrintWriter(new FileWriter(new File("/Users/inouemiyu/Desktop/milk_scm/scm_" + month() + "_" + day() +"/"+sales_deadline+"_"+delivery_deadline+"/maker/maker"+beta_f+"_"+beta_p+".csv")));
-      PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\卒研\\milk_scm\\scm_"+ month() + "_" + day() +"\\"+sales_deadline+"_"+delivery_deadline+"\\maker\\maker"+beta_f+"_"+beta_p+".csv"), true));//！！！
+      PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\卒研\\milk_scm\\scm_"+ month() + "_" + day() +"\\"+sales_deadline+"_"+delivery_deadline+"\\maker\\maker"+beta_f+"_"+beta_p+"_"+kawanai+".csv"), true));//！！！
 
       file.println("");
       file.print("freshness");      
@@ -256,7 +256,7 @@ class Maker extends ArrayList <Milkstock> {
   void addfile() {
     try {
       //PrintWriter file = new PrintWriter(new FileWriter(new File("/Users/inouemiyu/Desktop/milk_scm/scm_" + month() + "_" + day() +"/"+sales_deadline+"_"+delivery_deadline+"/maker/maker"+beta_f+"_"+beta_p+".csv"), true));
-      PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\卒研\\milk_scm\\scm_"+ month() + "_" + day() +"\\"+sales_deadline+"_"+delivery_deadline+"\\maker\\maker"+beta_f+"_"+beta_p+".csv"), true));//！！！
+      PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\卒研\\milk_scm\\scm_"+ month() + "_" + day() +"\\"+sales_deadline+"_"+delivery_deadline+"\\maker\\maker"+beta_f+"_"+beta_p+"_"+kawanai+".csv"), true));//！！！
 
       for (int i=0; i<maker_list.size(); i++) {
         for (int j=0; j<maker_list.get(i).size(); j++) {

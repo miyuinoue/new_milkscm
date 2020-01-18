@@ -164,7 +164,7 @@ class Supermarket {
   void super_list() {
     ArrayList<Integer> list = new ArrayList<Integer>();
 
-    list.add(day-30);//日にち
+    list.add(day-60);//日にち
     list.add((int)this.demand_forecast);//需要予測
     list.add((int)this.standard_deviation);//標準偏差
     list.add(this.saftystock_super);//安全在庫
@@ -177,7 +177,7 @@ class Supermarket {
   void newfile() {
     try {
       //PrintWriter file = new PrintWriter(new FileWriter(new File("/Users/inouemiyu/Desktop/milk_scm/scm_" + month() + "_" + day() +"/"+sales_deadline+"_"+delivery_deadline+"/super/super"+beta_f+"_"+beta_p+".csv")));
-      PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\卒研\\milk_scm\\scm_"+ month() + "_" + day() +"\\"+sales_deadline+"_"+delivery_deadline+"\\super\\super"+beta_f+"_"+beta_p+".csv"), true));//！！！
+      PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\卒研\\milk_scm\\scm_"+ month() + "_" + day() +"\\"+sales_deadline+"_"+delivery_deadline+"\\super\\super"+beta_f+"_"+beta_p+"_"+kawanai+".csv"), true));//！！！
 
       file.println("");
       file.print("freshness");      
@@ -268,7 +268,7 @@ class Supermarket {
   void addfile() {
     try {
       //PrintWriter file = new PrintWriter(new FileWriter(new File("/Users/inouemiyu/Desktop/milk_scm/scm_" + month() + "_" + day() +"/"+sales_deadline+"_"+delivery_deadline+"/super/super"+beta_f+"_"+beta_p+".csv"), true));
-      PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\卒研\\milk_scm\\scm_"+ month() + "_" + day() +"\\"+sales_deadline+"_"+delivery_deadline+"\\super\\super"+beta_f+"_"+beta_p+".csv"), true));//！！！
+      PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\卒研\\milk_scm\\scm_"+ month() + "_" + day() +"\\"+sales_deadline+"_"+delivery_deadline+"\\super\\super"+beta_f+"_"+beta_p+"_"+kawanai+".csv"), true));//！！！
 
       for (int i=0; i<super_list.size(); i++) {
         for (int j=0; j<super_list.get(i).size(); j++) {

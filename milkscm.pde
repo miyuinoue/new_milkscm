@@ -17,7 +17,7 @@ Customer customer;
 
 
 int day = 1;
-int span = 395;
+int span = 425;
 int T = 3; //倉庫から商品棚への品出し期間の総数
 int E = 14; //賞味期限の最大日数
 
@@ -45,7 +45,7 @@ float fmin = 6.133966;
 float mmax = 14.8;
 float mmin = 11.23599;
 
-int kawanai;
+int kawanai = 8;
 
 int order = 0;
 
@@ -98,8 +98,7 @@ void draw() {
   price = customer.satisfaction(beta_p, mmax, mmin);
 
 
-
-  for (int a=0; a<4; a++) {
+  for (int a=0; a<1; a++) {
     switch(a) {
     case 0://3分の1
       sales_deadline = 5;
@@ -119,14 +118,10 @@ void draw() {
       break;
     }
 
-    ////効用freshness
-    //for (int i=0; i<= 100; i+=10) {
-    //beta_f = i;
-    //freshness = customer.satisfaction(beta_f, fmax, fmin);
-
-    //買わないの基準
-    for (int i=0; i<=E; i++) {
-      kawanai = i;
+    //効用freshness
+    for (int i=0; i<= 100; i+=10) {
+      beta_f = i;
+      freshness = customer.satisfaction(beta_f, fmax, fmin);
 
       ArrayList<Float> maker_waste = new ArrayList<Float>();
       ArrayList<Float> super_waste = new ArrayList<Float>();
@@ -145,8 +140,13 @@ void draw() {
 
       //効用money
       for (int j=0; j<=100; j+=10) {
-        beta_f = j;
-        freshness = customer.satisfaction(beta_f, fmax, fmin);
+        beta_p = j;
+        price = customer.satisfaction(beta_p, mmax, mmin);
+
+        //買わないの基準
+        //for (int j=0; j<=E; j++) {
+        //  //println(i);
+        //  kawanai = j;
 
         maker.newfile();
         supermarket.newfile();
@@ -200,10 +200,6 @@ void draw() {
         maker_prob.add((mwaste / mdelivery) *100);
         super_prob.add((swaste / sdelivery) *100);
         total_prob.add((twaste / tdelivery) *100);
-
-        //maker_wasteloss.add(lossaverage(maker_lossaverage));
-        //super_wasteloss.add(lossaverage(super_lossaverage));
-        //total_waste.add(average(total_waste_ave));
       }
 
       maker_wastes.add(maker_waste);
@@ -217,10 +213,6 @@ void draw() {
       maker_probs.add(maker_prob);
       super_probs.add(super_prob);
       total_probs.add(total_prob);
-
-
-      //maker_wastesloss.add(maker_wasteloss);
-      //super_wastesloss.add(super_wasteloss);
     }
 
 
@@ -243,7 +235,7 @@ void main_scm() {
       customer.customer_first();//位置
     }
 
-    if (1 <= day && day <= 30) {
+    if (1 <= day && day <= 60) {
       for (int t=1; t<=T; t++) {
         if (t==1) {
           maker.newstock(); //生産
