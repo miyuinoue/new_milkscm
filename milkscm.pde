@@ -26,9 +26,9 @@ int kakaku = 216;
 
 int sales_deadline; //！！！
 int delivery_deadline; //！！！
-int shelf_capacity = 100;//在庫容量
-int stock_capacity = 100;
-int maker_capacity = 300;
+int shelf_capacity = 200;//在庫容量
+int stock_capacity = 400;
+int maker_capacity = 400;
 
 double freshness;
 double price;

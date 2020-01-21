@@ -59,54 +59,15 @@ class Supermarket {
     saftystock_super = (int)Math.ceil(this.safety_factor * this.standard_deviation * Math.sqrt(this.leadtime +this.ordercycle));
   }
 
-  //  //発注量o
-  //int order(int inv) {
-  //  order_quantity = (shelf_capacity + stock_capacity) - inv;
-  //  total_order_quantity += order_quantity;
-
-  //  return order_quantity;
-  //}
-
-  ////発注量o
-  ////int order(int inv, Supershelf supershelf) {
-  //int order(int inv) {
-  //  int capa = 0;
-  //  int inv_plus = 0;
-  //  int inv_minus = 0;
-
-  //  //在庫は常に最低でも50個持っている状態にしたい//50でいいの？
-  //  if (inv >= shelf_capacity) {
-  //    inv_plus = inv - shelf_capacity;
-  //  } else {
-  //    inv_minus = shelf_capacity - inv;
-  //  }
-
-  //  order_quantity = (int)ceil((this.leadtime + this.ordercycle) * this.demand_forecast - inv_plus + saftystock_super) + inv_minus;//発注量計算
-  //  //order_quantity = (int)ceil((this.leadtime + this.ordercycle) * this.demand_forecast - inv + saftystock_super)+ shelf_capacity;//発注量計算
-
-  //  if (order_quantity < 0)order_quantity = 0;//発注量<0の時は0
-
-  //  //order_quantity = order_quantity + (inv_plus + supershelf.sales_loss);//既に在庫が50個以下だったら不足分も追加で発注する, 機会損失分も追加で発注する
-
-  //  //空き容量との比較
-  //  capa = (shelf_capacity + stock_capacity) - inv;//150-在庫
-  //  if (capa < order_quantity)order_quantity = capa;
-
-  //  //order_quantity = (shelf_capacity + stock_capacity) - inv;
-
-  //  total_order_quantity += order_quantity;
-
-  //  return order_quantity;
-  //}
 
   //発注量o
   int order(int inv) {
     int capa = 0;
     int inv_plus = 0;
     int inv_minus = 0;
-    int num = shelf_capacity + 50;
+    int num = shelf_capacity + 100;
 
-    //在庫は常に最低でも100個持っている状態にしたい//棚出し3回分は，保持しておきたい
+    //在庫は常に最低でも200個持っている状態にしたい//棚出し3回分は，保持しておきたい
     if (inv >= num) {
       inv_plus = inv - num;
     } else {
@@ -117,7 +78,7 @@ class Supermarket {
     if (order_quantity < 0)order_quantity = 0;//発注量<0の時は0
 
     //空き容量との比較
-    capa = (shelf_capacity + stock_capacity) - inv;//200-在庫
+    capa = (shelf_capacity + stock_capacity) - inv;//600-在庫
     if (capa < order_quantity)order_quantity = capa;
 
     total_order_quantity += order_quantity;
